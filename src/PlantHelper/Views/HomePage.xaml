@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    SafeAreaEdges="None">
+    <Grid RowDefinitions="Auto,*" SafeAreaEdges="None">
+        <Border Style="{StaticResource Header}" SafeAreaEdges="None">
+            <VerticalStackLayout SafeAreaEdges="Container" Spacing="2">
+                <Label Style="{StaticResource HeaderTitle}" Text="Good morning" />
+                <Label Style="{StaticResource HeaderSubtitle}" Text="Your garden at a glance" />
+            </VerticalStackLayout>
+        </Border>
+        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16" VerticalOptions="Start">
+            <Label Text="Coming soon" Style="{StaticResource Subtitle}" />
+        </Border>
+    </Grid>
+</ContentPage>

@@ -3,12 +3,37 @@
     x:Class="PlantHelper.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:PlantHelper"
-    Title="PlantHelper">
+    xmlns:views="clr-namespace:PlantHelper.Views"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Title="PlantHelper"
+    Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent Title="Home" Route="home" ContentTemplate="{DataTemplate views:HomePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MDI" Glyph="{x:Static theme:Icons.Home}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Plants" Route="plants" ContentTemplate="{DataTemplate views:PlantsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MDI" Glyph="{x:Static theme:Icons.Sprout}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Gallery" Route="gallery" ContentTemplate="{DataTemplate views:GalleryPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MDI" Glyph="{x:Static theme:Icons.ImageMultiple}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Tools" Route="tools" ContentTemplate="{DataTemplate views:ToolsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MDI" Glyph="{x:Static theme:Icons.CalculatorVariant}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Settings" Route="settings" ContentTemplate="{DataTemplate views:SettingsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MDI" Glyph="{x:Static theme:Icons.Cog}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </TabBar>
 
 </Shell>
