@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.DS_Store
+
+# Test results
+TestResults/
+coverage*/
+
+# Android signing keys - never commit
+*.keystore
+*.jks
+
+# Publish output
+publish/
+artifacts/
