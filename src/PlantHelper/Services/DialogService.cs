@@ -22,12 +22,6 @@ public sealed class DialogService
         return result is null or "Cancel" ? null : result;
     }
 
-    public async Task<string?> ChooseAsync(string title, string destructive, params string[] options)
-    {
-        var result = await CurrentPage.DisplayActionSheetAsync(title, "Cancel", destructive, options);
-        return result is null or "Cancel" ? null : result;
-    }
-
     /// <summary>Action sheet over items; duplicate labels get a " (2)" suffix so the choice is never ambiguous.</summary>
     public async Task<T?> ChooseItemAsync<T>(string title, IReadOnlyList<T> items, Func<T, string> label) where T : class
     {

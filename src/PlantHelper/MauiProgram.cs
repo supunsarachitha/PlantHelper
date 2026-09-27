@@ -35,10 +35,14 @@ public static class MauiProgram
 		builder.Services.AddSingleton<PhotoRepository>();
 		builder.Services.AddSingleton<NutrientRepository>();
 		builder.Services.AddSingleton<CareScheduleService>();
+		builder.Services.AddSingleton(sp => new BackupService(
+			sp.GetRequiredService<AppDatabase>(), sp.GetRequiredService<PhotoStore>(), FileSystem.CacheDirectory));
+		builder.Services.AddSingleton(CommunityToolkit.Maui.Storage.FileSaver.Default);
 		builder.Services.AddSingleton<SettingsService>();
 		builder.Services.AddSingleton<DialogService>();
 		builder.Services.AddSingleton<CareActionsService>();
 		builder.Services.AddSingleton<PhotoService>();
+		builder.Services.AddSingleton<DataTransferService>();
 #if ANDROID
 		builder.Services.AddSingleton<IReminderScheduler, Platforms.Android.AndroidReminderScheduler>();
 #elif IOS || MACCATALYST
@@ -65,6 +69,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<PpmEcViewModel>();
 		builder.Services.AddTransient<MixerViewModel>();
 		builder.Services.AddTransient<ConverterViewModel>();
+		builder.Services.AddTransient<SettingsViewModel>();
 
 		builder.Services.AddTransient<HomePage>();
 		builder.Services.AddTransient<PlantsPage>();

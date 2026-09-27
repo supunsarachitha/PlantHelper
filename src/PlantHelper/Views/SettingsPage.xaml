@@ -3,17 +3,123 @@
     x:Class="PlantHelper.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    x:DataType="vm:SettingsViewModel"
     Shell.NavBarIsVisible="False"
     SafeAreaEdges="None">
-    <Grid RowDefinitions="Auto,*">
-        <Border Style="{StaticResource Header}">
+
+    <ContentPage.Resources>
+        <Style x:Key="SettingRowButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+            <Setter Property="FontFamily" Value="NunitoBold" />
+            <Setter Property="HorizontalOptions" Value="Fill" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" SafeAreaEdges="None">
+        <Border Style="{StaticResource Header}" Background="{StaticResource OceanGradient}" SafeAreaEdges="None">
             <VerticalStackLayout SafeAreaEdges="Container" Spacing="2">
-                <Label Style="{StaticResource HeaderTitle}" Text="Settings" />
-                <Label Style="{StaticResource HeaderSubtitle}" Text="Units, backup and privacy" />
+                <Label Style="{StaticResource HeaderTitle}" Text="Settings" SemanticProperties.HeadingLevel="Level1" />
+                <Label Style="{StaticResource HeaderSubtitle}" TextColor="#E0F2FE" Text="Units, reminders, backup and privacy" />
             </VerticalStackLayout>
         </Border>
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16" VerticalOptions="Start">
-            <Label Text="Coming soon" Style="{StaticResource Subtitle}" />
-        </Border>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+
+                <!-- Profile -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Style="{StaticResource SectionTitle}" Text="You" />
+                        <controls:FormEntry Label="Your name (for the greeting)" Text="{Binding GrowerName}" Keyboard="Text" MaxLength="30" Placeholder="optional" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Units -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Style="{StaticResource SectionTitle}" Text="Units" />
+                        <Label Style="{StaticResource FieldLabel}" Text="Measurements" />
+                        <controls:ChipsView ItemsSource="{Binding UnitSystems}" Command="{Binding SelectUnitSystemCommand}" />
+                        <Label Style="{StaticResource FieldLabel}" Text="Temperature" />
+                        <controls:ChipsView ItemsSource="{Binding Temperatures}" Command="{Binding SelectTemperatureCommand}" />
+                        <Label Style="{StaticResource FieldLabel}" Text="Nutrient strength" />
+                        <controls:ChipsView ItemsSource="{Binding Scales}" Command="{Binding SelectScaleCommand}" />
+                        <Label Style="{StaticResource Caption}" Text="Values are stored in metric/EC and converted for display, so you can switch any time." />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Appearance -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Style="{StaticResource SectionTitle}" Text="Appearance" />
+                        <controls:ChipsView ItemsSource="{Binding Themes}" Command="{Binding SelectThemeCommand}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Reminders -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding RemindersSupported}">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#FEF3C7">
+                                <Label Style="{StaticResource Icon}" TextColor="#F59E0B" Text="{x:Static theme:Icons.BellRing}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="Daily care reminder" Style="{StaticResource Subtitle}" />
+                                <Label Text="One notification when plants need water or food" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Switch Grid.Column="2" IsToggled="{Binding RemindersEnabled}" SemanticProperties.Description="Daily care reminder" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding RemindersEnabled}">
+                            <Label Text="Remind me at" Style="{StaticResource Body}" VerticalOptions="Center" />
+                            <Border Grid.Column="1" Style="{StaticResource FormField}" WidthRequest="120">
+                                <TimePicker Time="{Binding ReminderTime}" Format="t" />
+                            </Border>
+                        </Grid>
+                        <Button Text="Send test reminder now (debug)" Style="{StaticResource SecondaryButton}" Command="{Binding TestReminderCommand}" IsVisible="{Binding IsDebug}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Data -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Your data" />
+                        <Border Style="{StaticResource Chip}" HorizontalOptions="Fill" Padding="12,10" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoft}, Dark={StaticResource PrimarySoftDark}}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Style="{StaticResource Icon}" FontSize="20" TextColor="{StaticResource Primary}" Text="{x:Static theme:Icons.ShieldLock}" />
+                                <Label Grid.Column="1" Text="{Binding StorageText}" FontFamily="NunitoSemiBold" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource PrimaryDark}, Dark={StaticResource PrimaryLight}}" />
+                            </Grid>
+                        </Border>
+                        <Label Style="{StaticResource Caption}" Text="Everything stays on this device. Export a backup to move to a new phone or keep a safe copy." />
+                        <Button Style="{StaticResource PrimaryButton}" Text="Export backup (.zip)" Command="{Binding ExportBackupCommand}" IsEnabled="{Binding IsNotBusy}" />
+                        <Button Style="{StaticResource SecondaryButton}" Text="Import / restore backup" Command="{Binding ImportBackupCommand}" IsEnabled="{Binding IsNotBusy}" />
+                        <Button Style="{StaticResource SecondaryButton}" Text="Export journal as CSV" Command="{Binding ExportCsvCommand}" />
+                        <Button Style="{StaticResource SecondaryButton}" Text="Nutrient library" Command="{Binding NutrientsCommand}" />
+                        <Button Style="{StaticResource DangerButton}" Text="Delete all data" Command="{Binding DeleteAllCommand}" />
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- About -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource SectionTitle}" Text="About" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Image Source="logo.png" WidthRequest="52" HeightRequest="52" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="PlantHelper" Style="{StaticResource Subtitle}" />
+                                <Label Text="{Binding VersionText}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Button Style="{StaticResource SecondaryButton}" Text="Privacy policy" Command="{Binding PrivacyCommand}" />
+                        <Label Style="{StaticResource Caption}" Text="Fonts: Nunito (SIL OFL 1.1). Icons: Material Design Icons (Apache 2.0)." />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

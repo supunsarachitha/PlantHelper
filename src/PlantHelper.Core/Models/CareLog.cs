@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SQLite;
 
 namespace PlantHelper.Core.Models;
@@ -70,7 +71,7 @@ public class CareLog
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    [Ignore]
+    [Ignore, JsonIgnore]
     public List<NutrientDose> Doses
     {
         get
@@ -92,7 +93,7 @@ public class CareLog
     }
 
     /// <summary>Feeding waters the plant too, so it resets the watering clock.</summary>
-    [Ignore]
+    [Ignore, JsonIgnore]
     public bool CountsAsWatering => Type is LogType.Water or LogType.Feed;
 }
 

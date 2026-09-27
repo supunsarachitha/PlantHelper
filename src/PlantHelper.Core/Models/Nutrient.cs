@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SQLite;
 
 namespace PlantHelper.Core.Models;
@@ -27,7 +28,7 @@ public class Nutrient
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    [Ignore]
+    [Ignore, JsonIgnore]
     public string NpkText => N is null && P is null && K is null
         ? string.Empty
         : $"{N ?? 0:0.#}-{P ?? 0:0.#}-{K ?? 0:0.#}";
