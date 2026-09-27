@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using PlantHelper.Core.Data;
 using PlantHelper.Core.Services;
 using PlantHelper.Services;
+using PlantHelper.ViewModels;
 using PlantHelper.Views;
 
 namespace PlantHelper;
@@ -35,17 +36,42 @@ public static class MauiProgram
 		builder.Services.AddSingleton<NutrientRepository>();
 		builder.Services.AddSingleton<CareScheduleService>();
 		builder.Services.AddSingleton<SettingsService>();
+		builder.Services.AddSingleton<DialogService>();
+
+		// View models
+		builder.Services.AddTransient<PlantsViewModel>();
+		builder.Services.AddTransient<PlantEditViewModel>();
+		builder.Services.AddTransient<PlantDetailViewModel>();
 
 		builder.Services.AddTransient<HomePage>();
 		builder.Services.AddTransient<PlantsPage>();
 		builder.Services.AddTransient<GalleryPage>();
 		builder.Services.AddTransient<ToolsPage>();
 		builder.Services.AddTransient<SettingsPage>();
+		builder.Services.AddTransient<PlantDetailPage>();
+		builder.Services.AddTransient<PlantEditPage>();
+
+		RemoveNativeUnderlines();
 
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
 
 		return builder.Build();
+	}
+
+	/// <summary>Our inputs sit inside rounded borders, so drop Android's default underline.</summary>
+	private static void RemoveNativeUnderlines()
+	{
+#if ANDROID
+		static void Clear(Android.Views.View view) =>
+			view.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+
+		Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => Clear(h.PlatformView));
+		Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => Clear(h.PlatformView));
+		Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => Clear(h.PlatformView));
+		Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => Clear(h.PlatformView));
+		Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => Clear(h.PlatformView));
+#endif
 	}
 }

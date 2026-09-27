@@ -100,7 +100,22 @@
 
     <Style TargetType="Switch">
         <Setter Property="OnColor" Value="{StaticResource PrimaryLight}" />
-        <Setter Property="ThumbColor" Value="{StaticResource Primary}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="On">
+                        <VisualState.Setters>
+                            <Setter Property="ThumbColor" Value="{StaticResource Primary}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Off">
+                        <VisualState.Setters>
+                            <Setter Property="ThumbColor" Value="{AppThemeBinding Light=#F8FAFC, Dark=#94A3B8}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <Style TargetType="Slider">
@@ -295,6 +310,10 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="BackgroundColor" Value="#33FFFFFF" />
         <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="OverlayIconButton" TargetType="Button" BasedOn="{StaticResource HeaderIconButton}">
+        <Setter Property="BackgroundColor" Value="#59000000" />
     </Style>
 
 </ResourceDictionary>

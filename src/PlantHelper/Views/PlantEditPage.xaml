@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PlantEditPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:PlantEditViewModel"
+    Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <!-- Colourful chip used for category + stage -->
+        <DataTemplate x:Key="ChipTemplate" x:DataType="vm:SelectableOption">
+            <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="12,0" HeightRequest="40" Margin="0,0,8,8"
+                    SemanticProperties.Description="{Binding Label}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnChipTapped" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label Style="{StaticResource Icon}" FontSize="16" Text="{Binding Icon}" TextColor="{Binding Foreground}" />
+                    <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="14" TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,24" Spacing="16">
+
+                <!-- Basics -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#DCFCE7">
+                                <Label Style="{StaticResource Icon}" TextColor="#16A34A" Text="{x:Static theme:Icons.Sprout}" />
+                            </Border>
+                            <Label Style="{StaticResource SectionTitle}" Text="Basics" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource FieldLabel}" Text="Plant name *" />
+                            <Border Style="{StaticResource FormField}">
+                                <Entry x:Name="NameEntry" Text="{Binding Name}" Placeholder="e.g. Cherry tomato #1" MaxLength="60" SemanticProperties.Description="Plant name" />
+                            </Border>
+                            <Label Text="{Binding NameError}" TextColor="{StaticResource Danger}" FontSize="12" Margin="4,4,0,0"
+                                   IsVisible="{Binding NameError, Converter={toolkit:IsStringNotNullOrEmptyConverter}}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <VerticalStackLayout>
+                                <Label Style="{StaticResource FieldLabel}" Text="Species" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Entry Text="{Binding Species}" Placeholder="Tomato" MaxLength="80" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Style="{StaticResource FieldLabel}" Text="Variety / strain" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Entry Text="{Binding Variety}" Placeholder="Sweet 100" MaxLength="80" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Style="{StaticResource FieldLabel}" Text="Category" />
+                        <FlexLayout x:Name="CategoryChips" Wrap="Wrap" BindableLayout.ItemsSource="{Binding Categories}" BindableLayout.ItemTemplate="{StaticResource ChipTemplate}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Stage -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#FCE7F3">
+                                <Label Style="{StaticResource Icon}" TextColor="#EC4899" Text="{x:Static theme:Icons.Flower}" />
+                            </Border>
+                            <Label Style="{StaticResource SectionTitle}" Text="Growth stage" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <FlexLayout x:Name="StageChips" Wrap="Wrap" BindableLayout.ItemsSource="{Binding Stages}" BindableLayout.ItemTemplate="{StaticResource ChipTemplate}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Setup -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#FEF3C7">
+                                <Label Style="{StaticResource Icon}" TextColor="#B45309" Text="{x:Static theme:Icons.PotMix}" />
+                            </Border>
+                            <Label Style="{StaticResource SectionTitle}" Text="Growing setup" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                            <VerticalStackLayout>
+                                <Label Style="{StaticResource FieldLabel}" Text="Medium" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Picker ItemsSource="{Binding Mediums}" SelectedIndex="{Binding MediumIndex}" Title="Medium" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Style="{StaticResource FieldLabel}" Text="Location" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Picker ItemsSource="{Binding Locations}" SelectedIndex="{Binding LocationIndex}" Title="Location" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1">
+                                <Label Style="{StaticResource FieldLabel}" Text="Started from" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Picker ItemsSource="{Binding Sources}" SelectedIndex="{Binding SourceIndex}" Title="Started from" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Style="{StaticResource FieldLabel}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Container (" />
+                                            <Span Text="{Binding ContainerUnit}" />
+                                            <Span Text=")" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Border Style="{StaticResource FormField}">
+                                    <Entry Text="{Binding ContainerSize}" Keyboard="Numeric" Placeholder="e.g. 11" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2">
+                                <Label Style="{StaticResource FieldLabel}" Text="Spot / position" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Entry Text="{Binding Spot}" Placeholder="e.g. Tent A, back left" MaxLength="80" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Dates -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#E0E7FF">
+                                <Label Style="{StaticResource Icon}" TextColor="#6366F1" Text="{x:Static theme:Icons.Calendar}" />
+                            </Border>
+                            <Label Style="{StaticResource SectionTitle}" Text="Dates" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource FieldLabel}" Text="Planted / started on" />
+                            <Border Style="{StaticResource FormField}">
+                                <DatePicker Date="{Binding PlantedOn}" Format="D" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Germinated / rooted" Style="{StaticResource Body}" FontFamily="NunitoSemiBold" VerticalOptions="Center" />
+                            <Switch Grid.Column="1" IsToggled="{Binding HasGerminated}" />
+                        </Grid>
+                        <Border Style="{StaticResource FormField}" IsVisible="{Binding HasGerminated}">
+                            <DatePicker Date="{Binding GerminatedOn}" Format="D" />
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Expected harvest" Style="{StaticResource Body}" FontFamily="NunitoSemiBold" VerticalOptions="Center" />
+                            <Switch Grid.Column="1" IsToggled="{Binding HasExpectedHarvest}" />
+                        </Grid>
+                        <Border Style="{StaticResource FormField}" IsVisible="{Binding HasExpectedHarvest}">
+                            <DatePicker Date="{Binding ExpectedHarvestOn}" Format="D" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Care schedule -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="14">
+                        <HorizontalStackLayout Spacing="10">
+                            <Border Style="{StaticResource IconBadge}" BackgroundColor="#DBEAFE">
+                                <Label Style="{StaticResource Icon}" TextColor="#3B82F6" Text="{x:Static theme:Icons.CalendarClock}" />
+                            </Border>
+                            <Label Style="{StaticResource SectionTitle}" Text="Care schedule" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="8">
+                            <Label Style="{StaticResource Icon}" Text="{x:Static theme:Icons.Water}" TextColor="{StaticResource WaterColor}" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="Watering" FontFamily="NunitoBold" />
+                                <Label Text="{Binding WaterText}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="−" Command="{Binding ChangeWaterCommand}" CommandParameter="-1" Style="{StaticResource SecondaryButton}" WidthRequest="48" HeightRequest="44" Padding="0" SemanticProperties.Description="Water less often" />
+                            <Label Grid.Column="3" Text="{Binding WaterEveryDays}" Style="{StaticResource Subtitle}" WidthRequest="30" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Button Grid.Column="4" Text="+" Command="{Binding ChangeWaterCommand}" CommandParameter="1" Style="{StaticResource SecondaryButton}" WidthRequest="48" HeightRequest="44" Padding="0" SemanticProperties.Description="Water more days apart" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="8">
+                            <Label Style="{StaticResource Icon}" Text="{x:Static theme:Icons.Flask}" TextColor="{StaticResource FeedColor}" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="Feeding" FontFamily="NunitoBold" />
+                                <Label Text="{Binding FeedText}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="−" Command="{Binding ChangeFeedCommand}" CommandParameter="-1" Style="{StaticResource SecondaryButton}" WidthRequest="48" HeightRequest="44" Padding="0" SemanticProperties.Description="Feed less often" />
+                            <Label Grid.Column="3" Text="{Binding FeedEveryDays}" Style="{StaticResource Subtitle}" WidthRequest="30" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Button Grid.Column="4" Text="+" Command="{Binding ChangeFeedCommand}" CommandParameter="1" Style="{StaticResource SecondaryButton}" WidthRequest="48" HeightRequest="44" Padding="0" SemanticProperties.Description="Feed more days apart" />
+                        </Grid>
+                        <Label Style="{StaticResource Caption}" Text="Set to 0 to turn a reminder off. Feeding also counts as watering." />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Notes -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="10">
+                                <Border Style="{StaticResource IconBadge}" BackgroundColor="#F1F5F9">
+                                    <Label Style="{StaticResource Icon}" TextColor="#64748B" Text="{x:Static theme:Icons.NoteText}" />
+                                </Border>
+                                <Label Style="{StaticResource SectionTitle}" Text="Notes" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Favourite" Style="{StaticResource Muted}" VerticalOptions="Center" />
+                                <CheckBox IsChecked="{Binding IsFavorite}" Color="#F43F5E" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <Border Style="{StaticResource FormField}" Padding="10,4">
+                            <Editor Text="{Binding Notes}" Placeholder="Anything worth remembering…" AutoSize="TextChanges" MinimumHeightRequest="90" MaxLength="2000" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Save bar -->
+        <Border Grid.Row="1" Padding="16,10,16,12" BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+            <Border.Shadow>
+                <Shadow Brush="#22000000" Offset="0,-2" Radius="10" />
+            </Border.Shadow>
+            <Button Style="{StaticResource PrimaryButton}" Text="Save plant" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
+        </Border>
+    </Grid>
+</ContentPage>

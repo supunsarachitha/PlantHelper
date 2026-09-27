@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PlantDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:PlantDetailViewModel"
+    Shell.NavBarIsVisible="False"
+    SafeAreaEdges="None">
+
+    <Grid SafeAreaEdges="None">
+        <ScrollView SafeAreaEdges="None" Scrolled="OnScrolled">
+            <VerticalStackLayout SafeAreaEdges="None">
+
+                <!-- ============ Hero ============ -->
+                <Grid HeightRequest="320" SafeAreaEdges="None">
+                    <Border Background="{Binding PlaceholderBrush}" StrokeShape="RoundRectangle 0,0,32,32" SafeAreaEdges="None">
+                        <Grid>
+                            <Label Style="{StaticResource Icon}" FontSize="120" TextColor="#40FFFFFF" Text="{Binding CategoryIcon}" />
+                            <Image Source="{Binding Cover}" Aspect="AspectFill" IsVisible="{Binding HasCover}" />
+                            <BoxView Background="{StaticResource PhotoScrim}" Color="Transparent" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Title -->
+                    <VerticalStackLayout VerticalOptions="End" Padding="20,0,20,40" Spacing="6">
+                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding StageColor}" Padding="10,5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeStageCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="5">
+                                <Label Style="{StaticResource Icon}" FontSize="15" TextColor="White" Text="{Binding StageIcon}" />
+                                <Label Text="{Binding StageText}" TextColor="White" FontFamily="NunitoBold" FontSize="13" />
+                                <Label Style="{StaticResource Icon}" FontSize="15" TextColor="White" Text="{x:Static theme:Icons.SwapHorizontal}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                        <Label Text="{Binding Name}" Style="{StaticResource Headline}" TextColor="White" FontSize="30" LineBreakMode="TailTruncation" SemanticProperties.HeadingLevel="Level1" />
+                        <Label Text="{Binding Subtitle}" TextColor="#E6FFFFFF" FontFamily="NunitoSemiBold" FontSize="14" LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- ============ Body ============ -->
+                <VerticalStackLayout Padding="16,0,16,32" Spacing="16" Margin="0,-26,0,0">
+
+                    <!-- Stats -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Border Style="{StaticResource Card}" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding AgeValue}" Style="{StaticResource StatValue}" TextColor="#16A34A" HorizontalTextAlignment="Center" />
+                                <Label Text="Days old" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource Card}" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding StageDaysValue}" Style="{StaticResource StatValue}" TextColor="{Binding StageColor}" HorizontalTextAlignment="Center" />
+                                <Label Text="Days in stage" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding ThirdStatValue}" Style="{StaticResource StatValue}" TextColor="#F59E0B" HorizontalTextAlignment="Center" />
+                                <Label Text="{Binding ThirdStatTitle}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Tabs -->
+                    <FlexLayout JustifyContent="SpaceBetween" BindableLayout.ItemsSource="{Binding Tabs}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SelectableOption">
+                                <Border FlexLayout.Grow="1" Margin="3,0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Background}" HeightRequest="48"
+                                        SemanticProperties.Description="{Binding Label}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantDetailViewModel}}, Path=SelectTabCommand, x:DataType=vm:PlantDetailViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                                        <Label Style="{StaticResource Icon}" FontSize="17" Text="{Binding Icon}" TextColor="{Binding Foreground}" />
+                                        <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="11" TextColor="{Binding Foreground}" HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- ============ Overview tab ============ -->
+                    <VerticalStackLayout Spacing="16" IsVisible="{Binding IsOverviewTab}">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border Style="{StaticResource Card}" Padding="14" BackgroundColor="{Binding WaterStatus.Soft}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Style="{StaticResource Icon}" HorizontalOptions="Start" FontSize="26" Text="{Binding WaterStatus.Icon}" TextColor="{Binding WaterStatus.Color}" />
+                                    <Label Text="{Binding WaterStatus.Title}" FontFamily="NunitoExtraBold" FontSize="15" TextColor="{Binding WaterStatus.Color}" />
+                                    <Label Text="{Binding WaterStatus.Detail}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14" BackgroundColor="{Binding FeedStatus.Soft}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Style="{StaticResource Icon}" HorizontalOptions="Start" FontSize="26" Text="{Binding FeedStatus.Icon}" TextColor="{Binding FeedStatus.Color}" />
+                                    <Label Text="{Binding FeedStatus.Title}" FontFamily="NunitoExtraBold" FontSize="15" TextColor="{Binding FeedStatus.Color}" />
+                                    <Label Text="{Binding FeedStatus.Detail}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource SectionTitle}" Text="Plant details" Margin="0,0,0,6" />
+                                <VerticalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding InfoRows}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:InfoRow">
+                                            <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="10" Padding="0,6">
+                                                <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 12" BackgroundColor="{Binding Color, Converter={StaticResource SoftColor}}">
+                                                    <Label Style="{StaticResource Icon}" FontSize="18" Text="{Binding Icon}" TextColor="{Binding Color}" />
+                                                </Border>
+                                                <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource Muted}" VerticalOptions="Center" />
+                                                <Label Grid.Column="2" Text="{Binding Value}" FontFamily="NunitoBold" VerticalOptions="Center" HorizontalTextAlignment="End" MaximumWidthRequest="210" LineBreakMode="TailTruncation" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" IsVisible="{Binding HasNotes}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource SectionTitle}" Text="Notes" />
+                                <Label Text="{Binding Notes}" Style="{StaticResource Body}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Style="{StaticResource SecondaryButton}" Text="Change status" Command="{Binding ChangeStatusCommand}" />
+                            <Button Grid.Column="1" Style="{StaticResource DangerButton}" Text="Delete plant" Command="{Binding DeleteCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- ============ Journal tab ============ -->
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsJournalTab}">
+                        <Label Style="{StaticResource Muted}" Text="Journal entries will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                    </VerticalStackLayout>
+
+                    <!-- ============ Photos tab ============ -->
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPhotosTab}">
+                        <Label Style="{StaticResource Muted}" Text="Photos will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                    </VerticalStackLayout>
+
+                    <!-- ============ Growth tab ============ -->
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsGrowthTab}">
+                        <Label Style="{StaticResource Muted}" Text="Growth charts will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+        <!-- Floating top bar (outside the ScrollView so it respects the status bar inset).
+             Its gradient background fades in once the hero scrolls away. -->
+        <Border x:Name="TopBarBackground" Background="{StaticResource HeaderGradient}" Opacity="0" VerticalOptions="Start" SafeAreaEdges="None" InputTransparent="True"
+                HeightRequest="{Binding Source={x:Reference TopBar}, Path=Height, x:DataType=Grid}" />
+        <Grid x:Name="TopBar" ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="8" Padding="12,8" VerticalOptions="Start" SafeAreaEdges="Container">
+            <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.ArrowLeft}" Command="{Binding BackCommand}" SemanticProperties.Description="Back" />
+            <Label x:Name="TopBarTitle" Grid.Column="1" Text="{Binding Name}" Opacity="0" TextColor="White" FontFamily="NunitoExtraBold" FontSize="19"
+                   VerticalOptions="Center" LineBreakMode="TailTruncation" Margin="6,0" />
+            <Button Grid.Column="2" Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Heart}" TextColor="{Binding FavoriteColor}" Command="{Binding ToggleFavoriteCommand}" SemanticProperties.Description="Toggle favourite" />
+            <Button Grid.Column="3" Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Pencil}" Command="{Binding EditCommand}" SemanticProperties.Description="Edit plant" />
+            <Button Grid.Column="4" Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.DotsVertical}" Command="{Binding ChangeStatusCommand}" SemanticProperties.Description="Plant status options" />
+        </Grid>
+    </Grid>
+</ContentPage>

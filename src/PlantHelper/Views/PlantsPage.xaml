@@ -3,17 +3,150 @@
     x:Class="PlantHelper.Views.PlantsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    x:DataType="vm:PlantsViewModel"
     Shell.NavBarIsVisible="False"
     SafeAreaEdges="None">
-    <Grid RowDefinitions="Auto,*">
-        <Border Style="{StaticResource Header}">
-            <VerticalStackLayout SafeAreaEdges="Container" Spacing="2">
-                <Label Style="{StaticResource HeaderTitle}" Text="My Plants" />
-                <Label Style="{StaticResource HeaderSubtitle}" Text="Every plant, every detail" />
+
+    <Grid RowDefinitions="Auto,Auto,*" SafeAreaEdges="None">
+
+        <!-- Header -->
+        <Border Style="{StaticResource Header}" SafeAreaEdges="None">
+            <VerticalStackLayout SafeAreaEdges="Container" Spacing="14">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource HeaderTitle}" Text="My Plants" SemanticProperties.HeadingLevel="Level1" />
+                        <Label Style="{StaticResource HeaderSubtitle}" Text="{Binding Summary}" />
+                    </VerticalStackLayout>
+                    <Button
+                        Grid.Column="1"
+                        Style="{StaticResource HeaderIconButton}"
+                        Text="{x:Static theme:Icons.SortVariant}"
+                        Command="{Binding ChangeSortCommand}"
+                        SemanticProperties.Description="Sort plants" />
+                </Grid>
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 16" Padding="12,0" HeightRequest="50">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                        <Label Style="{StaticResource Icon}" Text="{x:Static theme:Icons.Magnify}" TextColor="#5B6F63" />
+                        <Entry
+                            Grid.Column="1"
+                            Placeholder="Search name, variety, spot…"
+                            PlaceholderColor="#7C8D83"
+                            TextColor="#13241A"
+                            Text="{Binding SearchText}"
+                            ClearButtonVisibility="WhileEditing"
+                            ReturnType="Search"
+                            SemanticProperties.Description="Search plants" />
+                    </Grid>
+                </Border>
             </VerticalStackLayout>
         </Border>
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16" VerticalOptions="Start">
-            <Label Text="Coming soon" Style="{StaticResource Subtitle}" />
-        </Border>
+
+        <!-- Filter chips -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+            <HorizontalStackLayout Padding="16,14,16,6" Spacing="8" BindableLayout.ItemsSource="{Binding Filters}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SelectableOption">
+                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="14,0" HeightRequest="40"
+                                SemanticProperties.Description="{Binding Label}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantsViewModel}}, Path=SelectFilterCommand, x:DataType=vm:PlantsViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="16" Text="{Binding Icon}" TextColor="{Binding Foreground}" />
+                                <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="14" TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Plant list -->
+        <RefreshView Grid.Row="2" Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Plants}" SelectionMode="None">
+                <CollectionView.Header>
+                    <BoxView HeightRequest="4" Color="Transparent" />
+                </CollectionView.Header>
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="96" Color="Transparent" />
+                </CollectionView.Footer>
+                <CollectionView.EmptyView>
+                    <Grid Padding="32,40">
+                        <VerticalStackLayout Spacing="14" HorizontalOptions="Center" IsVisible="{Binding HasNoPlants}">
+                            <Border WidthRequest="120" HeightRequest="120" StrokeShape="RoundRectangle 60" Background="{StaticResource HeaderGradient}" HorizontalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="60" TextColor="White" Text="{x:Static theme:Icons.Sprout}" />
+                            </Border>
+                            <Label Style="{StaticResource Title}" HorizontalTextAlignment="Center" Text="Your garden is empty" />
+                            <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center"
+                                   Text="Add a plant to start tracking watering, feeding, growth and photos." />
+                            <Button Style="{StaticResource PrimaryButton}" Text="Add your first plant" Command="{Binding AddPlantCommand}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center" IsVisible="{Binding HasNoResults}">
+                            <Label Style="{StaticResource Icon}" FontSize="54" TextColor="{StaticResource PrimaryLight}" Text="{x:Static theme:Icons.Magnify}" />
+                            <Label Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" Text="No plants match" />
+                            <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="Try another filter or search term." />
+                        </VerticalStackLayout>
+                    </Grid>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PlantItemViewModel">
+                        <Border Style="{StaticResource Card}" Margin="16,6" Padding="10"
+                                SemanticProperties.Description="{Binding Name}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantsViewModel}}, Path=OpenPlantCommand, x:DataType=vm:PlantsViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="88,*,Auto" ColumnSpacing="12">
+                                <!-- Cover -->
+                                <Border WidthRequest="88" HeightRequest="88" StrokeShape="RoundRectangle 18" Background="{Binding PlaceholderBrush}">
+                                    <Grid>
+                                        <Label Style="{StaticResource Icon}" FontSize="40" TextColor="White" Text="{Binding CategoryIcon}" />
+                                        <Image Source="{Binding Cover}" Aspect="AspectFill" IsVisible="{Binding HasCover}" />
+                                    </Grid>
+                                </Border>
+                                <!-- Details -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource Subtitle}" FontSize="17" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Subtitle}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
+                                    <HorizontalStackLayout Spacing="6" Margin="0,4,0,0">
+                                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding StageSoft}" Padding="8,3">
+                                            <HorizontalStackLayout Spacing="4">
+                                                <Label Style="{StaticResource Icon}" FontSize="13" Text="{Binding StageIcon}" TextColor="{Binding StageColor}" />
+                                                <Label Text="{Binding StageText}" FontFamily="NunitoBold" FontSize="12" TextColor="{Binding StageColor}" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding StatusSoft}" Padding="8,3" IsVisible="{Binding IsInactive}">
+                                            <Label Text="{Binding StatusText}" FontFamily="NunitoBold" FontSize="12" TextColor="{Binding StatusColor}" />
+                                        </Border>
+                                        <Label Text="{Binding AgeText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="4" IsVisible="{Binding HasCare}">
+                                        <Label Style="{StaticResource Icon}" FontSize="14" Text="{Binding CareIcon}" TextColor="{Binding CareColor}" />
+                                        <Label Text="{Binding CareText}" FontFamily="NunitoBold" FontSize="12" TextColor="{Binding CareColor}" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <!-- Favourite -->
+                                <Button Grid.Column="2" VerticalOptions="Start"
+                                        FontFamily="MDI" FontSize="22" Padding="0" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                                        BackgroundColor="Transparent" TextColor="{Binding FavoriteColor}"
+                                        Text="{x:Static theme:Icons.Heart}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantsViewModel}}, Path=ToggleFavoriteCommand, x:DataType=vm:PlantsViewModel}"
+                                        CommandParameter="{Binding .}"
+                                        SemanticProperties.Description="Toggle favourite" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Add button -->
+        <Button Grid.Row="2" Style="{StaticResource Fab}" Text="{x:Static theme:Icons.Plus}"
+                Command="{Binding AddPlantCommand}" SemanticProperties.Description="Add plant" />
     </Grid>
 </ContentPage>

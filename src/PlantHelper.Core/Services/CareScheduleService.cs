@@ -16,12 +16,10 @@ public sealed class CareScheduleService(PlantRepository plants, CareLogRepositor
         var tasks = new List<CareTask>();
         foreach (var plant in active)
         {
-            var lastWater = Max(Get(lastDates, plant.Id, LogType.Water), Get(lastDates, plant.Id, LogType.Feed));
-            var lastFeed = Get(lastDates, plant.Id, LogType.Feed);
-
-            if (ComputeTask(plant, CareTaskKind.Water, lastWater, today) is { } water)
+            var (water, feed) = ComputeTasks(plant, lastDates, today);
+            if (water is not null)
                 tasks.Add(water);
-            if (ComputeTask(plant, CareTaskKind.Feed, lastFeed, today) is { } feed)
+            if (feed is not null)
                 tasks.Add(feed);
         }
 
@@ -50,7 +48,16 @@ public sealed class CareScheduleService(PlantRepository plants, CareLogRepositor
         return new CareTask(plant, kind, due, lastDone, overdue);
     }
 
-    private static DateTime? Get(Dictionary<(string, LogType), DateTime> map, string plantId, LogType type) =>
+    /// <summary>Both tasks for one plant, given the latest log dates per (plant, type). Feeding also counts as watering.</summary>
+    public static (CareTask? Water, CareTask? Feed) ComputeTasks(
+        Plant plant, IReadOnlyDictionary<(string, LogType), DateTime> lastDates, DateTime today)
+    {
+        var lastFeed = Get(lastDates, plant.Id, LogType.Feed);
+        var lastWater = Max(Get(lastDates, plant.Id, LogType.Water), lastFeed);
+        return (ComputeTask(plant, CareTaskKind.Water, lastWater, today), ComputeTask(plant, CareTaskKind.Feed, lastFeed, today));
+    }
+
+    private static DateTime? Get(IReadOnlyDictionary<(string, LogType), DateTime> map, string plantId, LogType type) =>
         map.TryGetValue((plantId, type), out var d) ? d : null;
 
     private static DateTime? Max(DateTime? a, DateTime? b) =>
