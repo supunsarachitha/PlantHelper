@@ -28,6 +28,23 @@ public sealed class DialogService
         return result is null or "Cancel" ? null : result;
     }
 
+    /// <summary>Action sheet over items; duplicate labels get a " (2)" suffix so the choice is never ambiguous.</summary>
+    public async Task<T?> ChooseItemAsync<T>(string title, IReadOnlyList<T> items, Func<T, string> label) where T : class
+    {
+        var labels = new List<string>();
+        foreach (var item in items)
+        {
+            var text = label(item);
+            var candidate = text;
+            for (var n = 2; labels.Contains(candidate); n++)
+                candidate = $"{text} ({n})";
+            labels.Add(candidate);
+        }
+        var choice = await ChooseAsync(title, [.. labels]);
+        var index = choice is null ? -1 : labels.IndexOf(choice);
+        return index >= 0 ? items[index] : null;
+    }
+
     public Task<string?> PromptAsync(string title, string message, string initial = "", string placeholder = "", Keyboard? keyboard = null, int maxLength = 60) =>
         CurrentPage.DisplayPromptAsync(title, message, "OK", "Cancel", placeholder, maxLength, keyboard ?? Keyboard.Text, initial);
 

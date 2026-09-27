@@ -48,6 +48,7 @@ public static class MauiProgram
 #endif
 
 		// View models
+		builder.Services.AddTransient<HomeViewModel>();
 		builder.Services.AddTransient<PlantsViewModel>();
 		builder.Services.AddTransient<PlantEditViewModel>();
 		builder.Services.AddTransient<PlantDetailViewModel>();

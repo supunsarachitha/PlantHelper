@@ -11,6 +11,11 @@ namespace PlantHelper.ViewModels;
 
 public sealed record InfoRow(string Icon, string Label, string Value, Color Color);
 
+public sealed record ChartCard(string Title, string Subtitle, string Icon, Color Color, Controls.ChartSeries Series)
+{
+    public Color Soft => Visuals.Soft(Color);
+}
+
 public sealed record CareStatus(string Title, string Detail, string Icon, Color Color)
 {
     public Color Soft => Visuals.Soft(Color);
@@ -105,6 +110,13 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
     public ObservableCollection<PhotoItemViewModel> Photos { get; } = [];
 
     [ObservableProperty] public partial bool HasPhotos { get; set; }
+
+    public ObservableCollection<ChartCard> Charts { get; } = [];
+    [ObservableProperty] public partial bool HasCharts { get; set; }
+    [ObservableProperty] public partial string LatestHeightText { get; set; } = "–";
+    [ObservableProperty] public partial string TotalGrowthText { get; set; } = "–";
+    [ObservableProperty] public partial string AverageRateText { get; set; } = "–";
+    [ObservableProperty] public partial string RecentRateText { get; set; } = "–";
 
     /// <summary>Three photo tiles per row on the Photos tab.</summary>
     public double PhotoTileSize { get; } = Math.Floor((DeviceDisplay.MainDisplayInfo.Width / Math.Max(1, DeviceDisplay.MainDisplayInfo.Density) - 32 - 24) / 3); // 16dp page padding each side + 8dp right margin per tile
@@ -214,6 +226,8 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
         Reading(Icons.Basket, "Harvested", harvested > 0 ? fmt.FormatWeight(harvested) : null, LogType.Harvest);
         HasReadings = Readings.Count > 0;
 
+        BuildGrowth(plant, logs, photos, heightSeries, fmt);
+
         // Info rows
         InfoRows.Clear();
         void Add(string icon, string label, string? value, string color)
@@ -232,6 +246,44 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
         Add(Icons.CalendarCheck, "Expected harvest", plant.ExpectedHarvestOn?.ToString("d MMM yyyy"), "#F59E0B");
         Add(Icons.Archive, "Ended", plant.EndedOn?.ToString("d MMM yyyy"), "#64748B");
         Add(Icons.History, "Journal entries", logs.Count.ToString(), "#8B5CF6");
+    }
+
+    private void BuildGrowth(Plant plant, List<CareLog> logs, List<PlantPhoto> photos, List<DataPoint> heights, UnitFormatter fmt)
+    {
+        var summary = GrowthAnalytics.Summarize(heights);
+        LatestHeightText = fmt.FormatLength(summary.LatestHeightCm);
+        TotalGrowthText = summary.TotalGrowthCm is { } g ? (g >= 0 ? "+" : "−") + fmt.FormatLength(Math.Abs(g)) : "–";
+        AverageRateText = fmt.FormatRate(summary.AverageRateCmPerDay);
+        RecentRateText = fmt.FormatRate(summary.RecentRateCmPerDay);
+
+        static List<DataPoint> Convert(List<DataPoint> points, Func<double?, double?> toDisplay) =>
+            points.Select(p => new DataPoint(p.Date, toDisplay(p.Value) ?? p.Value)).ToList();
+
+        var hydro = plant.Medium is GrowMedium.Hydroponic or GrowMedium.Aeroponic or GrowMedium.Aquaponic
+            or GrowMedium.Coco or GrowMedium.Rockwool or GrowMedium.ClayPebbles;
+        var (phLow, phHigh) = hydro ? (5.5, 6.5) : (6.0, 7.0);
+        var oldestFirst = logs.AsEnumerable().Reverse().ToList();
+
+        Charts.Clear();
+        void Add(string title, string subtitle, string icon, LogType colorOf, List<DataPoint> points, string unit, int decimals, double? lo = null, double? hi = null)
+        {
+            if (points.Count >= 2)
+                Charts.Add(new ChartCard(title, subtitle, icon, Visuals.LogColor(colorOf), new Controls.ChartSeries(points, Visuals.LogColor(colorOf), unit, decimals, lo, hi)));
+        }
+
+        Add("Height", $"Growth rate {fmt.FormatRate(summary.AverageRateCmPerDay)}", Icons.Ruler, LogType.Measure,
+            Convert(heights, fmt.LengthToDisplay), fmt.LengthUnit, 1);
+        Add("pH", $"Ideal {phLow:0.0}–{phHigh:0.0} for {DisplayNames.Of(plant.Medium).ToLowerInvariant()}", Icons.Ph, LogType.Water,
+            GrowthAnalytics.Series(oldestFirst, l => l.Ph), "", 1, phLow, phHigh);
+        Add("Nutrient strength", fmt.StrengthUnit, Icons.Flask, LogType.Feed,
+            Convert(GrowthAnalytics.Series(oldestFirst, l => l.Ec), fmt.StrengthToDisplay), fmt.StrengthUnit, _settings.NutrientScale == NutrientScale.Ec ? 2 : 0);
+        Add("Water given", "Per watering / feeding", Icons.Water, LogType.Water,
+            Convert(GrowthAnalytics.Series(oldestFirst, l => l.CountsAsWatering ? l.AmountMl : null), fmt.VolumeToDisplay), fmt.VolumeUnit, 0);
+        Add("Temperature", "Grow space", Icons.Thermometer, LogType.Environment,
+            Convert(GrowthAnalytics.Series(oldestFirst, l => l.TempC), fmt.TemperatureToDisplay), fmt.TempUnit, 1);
+        Add("Humidity", "Relative humidity", Icons.WaterPercent, LogType.Environment,
+            GrowthAnalytics.Series(oldestFirst, l => l.HumidityPct), "%", 0, 40, 70);
+        HasCharts = Charts.Count > 0;
     }
 
     private static CareStatus BuildStatus(CareTask? task, int interval, string name, string icon, Color color, DateTime today)

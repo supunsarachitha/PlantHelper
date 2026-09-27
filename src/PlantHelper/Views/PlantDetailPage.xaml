@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:PlantHelper.ViewModels"
     xmlns:theme="clr-namespace:PlantHelper.Theme"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
     Shell.TabBarIsVisible="False"
     x:DataType="vm:PlantDetailViewModel"
     Shell.NavBarIsVisible="False"
@@ -273,7 +274,64 @@
 
                     <!-- ============ Growth tab ============ -->
                     <VerticalStackLayout Spacing="12" IsVisible="{Binding IsGrowthTab}">
-                        <Label Style="{StaticResource Muted}" Text="Growth charts will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <Border Style="{StaticResource Card}" Padding="14" Background="{StaticResource SunsetGradient}">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding LatestHeightText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="22" />
+                                    <Label Text="Current height" TextColor="#FFF7ED" FontSize="12" FontFamily="NunitoSemiBold" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14" Background="{StaticResource HeaderGradient}">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding TotalGrowthText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="22" />
+                                    <Label Text="Total growth" TextColor="#ECFDF5" FontSize="12" FontFamily="NunitoSemiBold" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14" Background="{StaticResource OceanGradient}">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding AverageRateText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="17" />
+                                    <Label Text="Average rate" TextColor="#EFF6FF" FontSize="12" FontFamily="NunitoSemiBold" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}" Padding="14" Background="{StaticResource BerryGradient}">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding RecentRateText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="17" />
+                                    <Label Text="Last 7 days" TextColor="#FDF2F8" FontSize="12" FontFamily="NunitoSemiBold" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Button Style="{StaticResource SecondaryButton}" Text="+ Log a measurement" Command="{Binding LogCommand}" CommandParameter="Measure" />
+
+                        <VerticalStackLayout Spacing="8" Padding="0,16" IsVisible="{Binding HasCharts, Converter={StaticResource Not}}">
+                            <Label Style="{StaticResource Icon}" FontSize="48" Text="{x:Static theme:Icons.ChartLine}" TextColor="#F97316" />
+                            <Label Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" Text="Charts need a little data" />
+                            <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="Log heights (or add heights to photos), pH, EC and climate readings on two or more days to see trends." />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Charts}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ChartCard">
+                                    <Border Style="{StaticResource Card}" Padding="14,14,10,8">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                                <Border WidthRequest="38" HeightRequest="38" StrokeShape="RoundRectangle 12" BackgroundColor="{Binding Soft}">
+                                                    <Label Style="{StaticResource Icon}" FontSize="19" Text="{Binding Icon}" TextColor="{Binding Color}" />
+                                                </Border>
+                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                                    <Label Text="{Binding Title}" Style="{StaticResource Subtitle}" />
+                                                    <Label Text="{Binding Subtitle}" Style="{StaticResource Caption}" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                            <controls:ChartView Series="{Binding Series}"
+                                                                LabelColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                                                GridColor="{AppThemeBinding Light=#14000000, Dark=#22FFFFFF}"
+                                                                SemanticProperties.Description="{Binding Title, StringFormat='{0} chart'}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </VerticalStackLayout>

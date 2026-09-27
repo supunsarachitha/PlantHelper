@@ -86,11 +86,7 @@ public partial class GalleryViewModel(
             return;
         }
         var plant = active.Count == 1 ? active[0] : null;
-        if (plant is null)
-        {
-            var name = await dialogs.ChooseAsync("Which plant?", [.. active.Select(p => p.Name)]);
-            plant = active.FirstOrDefault(p => p.Name == name);
-        }
+        plant ??= await dialogs.ChooseItemAsync("Which plant?", active, p => p.Name);
         if (plant is null)
             return;
         var added = await photoService.AddInteractiveAsync(plant);
