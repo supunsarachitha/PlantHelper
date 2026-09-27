@@ -3,17 +3,45 @@
     x:Class="PlantHelper.Views.ToolsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    x:DataType="vm:ToolsViewModel"
     Shell.NavBarIsVisible="False"
     SafeAreaEdges="None">
-    <Grid RowDefinitions="Auto,*">
-        <Border Style="{StaticResource Header}">
+    <Grid RowDefinitions="Auto,*" SafeAreaEdges="None">
+        <Border Style="{StaticResource Header}" Background="{StaticResource SunsetGradient}" SafeAreaEdges="None">
             <VerticalStackLayout SafeAreaEdges="Container" Spacing="2">
-                <Label Style="{StaticResource HeaderTitle}" Text="Grower Tools" />
-                <Label Style="{StaticResource HeaderSubtitle}" Text="Calculators for better yields" />
+                <Label Style="{StaticResource HeaderTitle}" Text="Grower Tools" SemanticProperties.HeadingLevel="Level1" />
+                <Label Style="{StaticResource HeaderSubtitle}" TextColor="#FFF7ED" Text="Calculators for healthier plants and bigger yields" />
             </VerticalStackLayout>
         </Border>
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16" VerticalOptions="Start">
-            <Label Text="Coming soon" Style="{StaticResource Subtitle}" />
-        </Border>
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Tools}" SelectionMode="None" Margin="10,10,10,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="2" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.Footer>
+                <Label Style="{StaticResource Caption}" Margin="10,12,10,24" HorizontalTextAlignment="Center"
+                       Text="Results are guidance only. Always follow your product labels and watch how your plants respond." />
+            </CollectionView.Footer>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ToolCard">
+                    <Border StrokeShape="RoundRectangle 24" Margin="6" Padding="16" Background="{Binding Background}" HeightRequest="176"
+                            SemanticProperties.Description="{Binding Title}">
+                        <Border.Shadow>
+                            <Shadow Brush="#22000000" Offset="0,4" Radius="12" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ToolsViewModel}}, Path=OpenCommand, x:DataType=vm:ToolsViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="4">
+                            <Border WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 16" BackgroundColor="#33FFFFFF" HorizontalOptions="Start">
+                                <Label Style="{StaticResource Icon}" FontSize="26" TextColor="White" Text="{Binding Icon}" />
+                            </Border>
+                            <Label Grid.Row="2" Text="{Binding Title}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="18" />
+                            <Label Grid.Row="3" Text="{Binding Subtitle}" TextColor="#F0FFFFFF" FontFamily="NunitoSemiBold" FontSize="12" MaxLines="2" LineBreakMode="TailTruncation" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </Grid>
 </ContentPage>

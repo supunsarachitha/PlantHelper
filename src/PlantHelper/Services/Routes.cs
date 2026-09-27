@@ -29,6 +29,11 @@ public static class Routes
         Routing.RegisterRoute(PhotoViewer, typeof(PhotoViewerPage));
         Routing.RegisterRoute(PhotoEdit, typeof(PhotoEditPage));
         Routing.RegisterRoute(PhotoCompare, typeof(PhotoComparePage));
+        Routing.RegisterRoute(Vpd, typeof(VpdPage));
+        Routing.RegisterRoute(Dli, typeof(DliPage));
+        Routing.RegisterRoute(PpmEc, typeof(PpmEcPage));
+        Routing.RegisterRoute(Dilution, typeof(MixerPage));
+        Routing.RegisterRoute(Converter, typeof(ConverterPage));
     }
 
     public static Task GoAsync(string route, IDictionary<string, object>? parameters = null) =>

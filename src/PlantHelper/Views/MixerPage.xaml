@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.MixerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:MixerViewModel"
+    Title="Nutrient mixer">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource SectionTitle}" Text="Reservoir / watering can" />
+                    <controls:FormEntry Label="Water volume" Text="{Binding Water}" />
+                    <controls:ChipsView ItemsSource="{Binding VolumeUnits}" Command="{Binding SelectVolumeUnitCommand}" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Style="{StaticResource FieldLabel}" Text="Strength" />
+                        <Label Grid.Column="1" Text="{Binding StrengthText}" FontFamily="NunitoBold" TextColor="{StaticResource Primary}" />
+                    </Grid>
+                    <Slider Minimum="25" Maximum="150" Value="{Binding Strength}" SemanticProperties.Description="Nutrient strength percentage" />
+                    <Label Style="{StaticResource Caption}" Text="Seedlings and clones usually start at 25–50%. Increase gradually while watching leaf tips." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Style="{StaticResource SectionTitle}" Text="Products (ml per L)" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Style="{StaticResource SmallPillButton}" Text="+ Add" Command="{Binding AddRowCommand}" />
+                    </Grid>
+                    <Label Style="{StaticResource Muted}" IsVisible="{Binding HasRows, Converter={StaticResource Not}}"
+                           Text="Nutrients from your library with a label dose appear here automatically. Tap + Add for others." />
+                    <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Rows}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:MixRowViewModel">
+                                <Grid ColumnDefinitions="*,96,Auto,Auto" ColumnSpacing="8">
+                                    <Label Text="{Binding Name}" FontFamily="NunitoBold" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                                    <Border Grid.Column="1" Style="{StaticResource FormField}" MinimumHeightRequest="44">
+                                        <Entry Text="{Binding DoseText}" Keyboard="Numeric" Placeholder="ml/L" SemanticProperties.Description="{Binding Name}" />
+                                    </Border>
+                                    <Label Grid.Column="2" Text="{Binding ResultText}" FontFamily="NunitoExtraBold" TextColor="{StaticResource Primary}" VerticalOptions="Center" MinimumWidthRequest="70" HorizontalTextAlignment="End" />
+                                    <Button Grid.Column="3" Text="{x:Static theme:Icons.Close}" FontFamily="MDI" FontSize="18" Padding="0" WidthRequest="44" HeightRequest="44" BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MixerViewModel}}, Path=RemoveRowCommand, x:DataType=vm:MixerViewModel}" CommandParameter="{Binding .}" SemanticProperties.Description="Remove product" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Background="{StaticResource HeaderGradient}" Padding="18" IsVisible="{Binding HasRows}">
+                <Label Text="{Binding TotalText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="15" />
+            </Border>
+            <Label Style="{StaticResource Caption}" Text="Add products to water one at a time and stir between each. Check pH after mixing." Margin="4,0" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

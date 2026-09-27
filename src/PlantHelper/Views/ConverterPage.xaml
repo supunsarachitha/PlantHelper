@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.ConverterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:ConverterViewModel"
+    Title="Unit converter">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <controls:ChipsView ItemsSource="{Binding Categories}" Command="{Binding SelectCategoryCommand}" />
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <controls:FormEntry Label="Value" Text="{Binding Value}" />
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Style="{StaticResource FieldLabel}" Text="From" />
+                        <Border Style="{StaticResource FormField}">
+                            <Picker ItemsSource="{Binding UnitNames}" SelectedIndex="{Binding FromIndex}" Title="Unit" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource Card}" Background="{StaticResource OceanGradient}" Padding="18">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Results}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ResultRow">
+                            <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                <Label Text="{Binding Label}" TextColor="#EFF6FF" FontFamily="NunitoSemiBold" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding Value}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="20" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

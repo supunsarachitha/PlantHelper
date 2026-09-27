@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.DliPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:DliViewModel"
+    Title="Light calculator (DLI)">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border Style="{StaticResource Card}" Background="{StaticResource SunsetGradient}" Padding="20">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="DAILY LIGHT INTEGRAL" TextColor="#FFF7ED" FontFamily="NunitoExtraBold" FontSize="11" CharacterSpacing="1.5" />
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding DliText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="48" />
+                        <Label Text="mol/m²/day" TextColor="#FFF7ED" FontFamily="NunitoBold" FontSize="16" VerticalOptions="End" Margin="0,0,0,10" />
+                    </HorizontalStackLayout>
+                    <Border Style="{StaticResource Chip}" BackgroundColor="White" Padding="12,5">
+                        <Label Text="{Binding VerdictText}" TextColor="{Binding VerdictColor}" FontFamily="NunitoExtraBold" FontSize="14" />
+                    </Border>
+                    <Label Text="{Binding RangeText}" TextColor="White" FontFamily="NunitoSemiBold" FontSize="13" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource SectionTitle}" Text="Your lighting" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <controls:FormEntry Label="PPFD at canopy" Unit="µmol" Text="{Binding Ppfd}" />
+                        <controls:FormEntry Grid.Column="1" Label="Light hours / day" Unit="h" Text="{Binding Hours}" />
+                    </Grid>
+                    <Label Style="{StaticResource FieldLabel}" Text="Plant type / stage" />
+                    <controls:ChipsView ItemsSource="{Binding Stages}" Command="{Binding SelectStageCommand}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitle}" Text="Target" />
+                    <Label Text="{Binding AdviceText}" Style="{StaticResource Body}" />
+                    <BoxView Style="{StaticResource Divider}" />
+                    <Label Style="{StaticResource Caption}" Text="DLI = PPFD × hours × 0.0036. Measure PPFD with a quantum sensor or a calibrated light-meter app at the top of the canopy." />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

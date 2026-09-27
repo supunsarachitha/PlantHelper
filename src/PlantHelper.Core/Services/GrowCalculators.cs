@@ -30,6 +30,13 @@ public static class GrowCalculators
         return Math.Max(0, leafSvp - airVp);
     }
 
+    /// <summary>Relative humidity (%) that gives the target VPD at this air temperature. Clamped to 0–100.</summary>
+    public static double HumidityForVpd(double airTempC, double targetVpd, double leafOffsetC = -2)
+    {
+        var rh = (SaturationVaporPressure(airTempC + leafOffsetC) - targetVpd) / SaturationVaporPressure(airTempC) * 100;
+        return Math.Clamp(rh, 0, 100);
+    }
+
     public static (double Low, double High) IdealVpdRange(GrowthStage stage) => stage switch
     {
         GrowthStage.Seed or GrowthStage.Germination or GrowthStage.Seedling => (0.4, 0.8),

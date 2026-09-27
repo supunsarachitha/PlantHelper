@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PpmEcPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:PpmEcViewModel"
+    Title="PPM ↔ EC converter">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <controls:FormEntry Label="Reading" Text="{Binding Value}" />
+                    <Label Style="{StaticResource FieldLabel}" Text="My meter shows" />
+                    <controls:ChipsView ItemsSource="{Binding Sources}" Command="{Binding SelectSourceCommand}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource Card}" Background="{StaticResource BerryGradient}" Padding="18">
+                <VerticalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Results}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ResultRow">
+                            <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                <Label Text="{Binding Label}" TextColor="#FDF2F8" FontFamily="NunitoSemiBold" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding Value}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="22" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <Label Style="{StaticResource Caption}" Text="PPM 500 (NaCl) is used by Hanna and most US meters, PPM 700 (442) by Truncheon and Eutech, PPM 640 by some EU meters. CF = EC × 10. Store values as EC in PlantHelper and pick your preferred scale in Settings." />
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

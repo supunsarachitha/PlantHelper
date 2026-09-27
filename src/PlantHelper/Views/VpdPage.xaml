@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.VpdPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:VpdViewModel"
+    Title="VPD calculator">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border Style="{StaticResource Card}" Background="{StaticResource OceanGradient}" Padding="20">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="VAPOUR PRESSURE DEFICIT" TextColor="#E0F2FE" FontFamily="NunitoExtraBold" FontSize="11" CharacterSpacing="1.5" />
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding VpdText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="48" />
+                        <Label Text="kPa" TextColor="#E0F2FE" FontFamily="NunitoBold" FontSize="18" VerticalOptions="End" Margin="0,0,0,10" />
+                    </HorizontalStackLayout>
+                    <Border Style="{StaticResource Chip}" BackgroundColor="White" Padding="12,5">
+                        <Label Text="{Binding ZoneText}" TextColor="{Binding ZoneColor}" FontFamily="NunitoExtraBold" FontSize="14" />
+                    </Border>
+                    <Label Text="{Binding RangeText}" TextColor="White" FontFamily="NunitoSemiBold" FontSize="13" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource SectionTitle}" Text="Your grow space" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <controls:FormEntry Label="Air temperature" Unit="{Binding TempUnit}" Text="{Binding Temp}" />
+                        <controls:FormEntry Grid.Column="1" Label="Relative humidity" Unit="%" Text="{Binding Humidity}" />
+                    </Grid>
+                    <controls:FormEntry Label="Leaf temperature offset" Unit="{Binding TempUnit}" Text="{Binding LeafOffset}" />
+                    <Label Style="{StaticResource Caption}" Text="Leaves are usually ~2 °C (3.6 °F) cooler than the air under LEDs, closer to 0 under HPS. Use a negative number for cooler leaves." />
+                    <Label Style="{StaticResource FieldLabel}" Text="Growth stage" />
+                    <controls:ChipsView ItemsSource="{Binding Stages}" Command="{Binding SelectStageCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitle}" Text="What it means" />
+                    <Label Text="{Binding AdviceText}" Style="{StaticResource Body}" />
+                    <BoxView Style="{StaticResource Divider}" />
+                    <Label Style="{StaticResource Caption}" Text="Targets: propagation 0.4–0.8 · vegetative 0.8–1.2 · flowering 1.0–1.5 kPa" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

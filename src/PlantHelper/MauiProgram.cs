@@ -59,6 +59,12 @@ public static class MauiProgram
 		builder.Services.AddTransient<PhotoEditViewModel>();
 		builder.Services.AddTransient<PhotoViewerViewModel>();
 		builder.Services.AddTransient<PhotoCompareViewModel>();
+		builder.Services.AddTransient<ToolsViewModel>();
+		builder.Services.AddTransient<VpdViewModel>();
+		builder.Services.AddTransient<DliViewModel>();
+		builder.Services.AddTransient<PpmEcViewModel>();
+		builder.Services.AddTransient<MixerViewModel>();
+		builder.Services.AddTransient<ConverterViewModel>();
 
 		builder.Services.AddTransient<HomePage>();
 		builder.Services.AddTransient<PlantsPage>();
@@ -73,6 +79,11 @@ public static class MauiProgram
 		builder.Services.AddTransient<PhotoEditPage>();
 		builder.Services.AddTransient<PhotoViewerPage>();
 		builder.Services.AddTransient<PhotoComparePage>();
+		builder.Services.AddTransient<VpdPage>();
+		builder.Services.AddTransient<DliPage>();
+		builder.Services.AddTransient<PpmEcPage>();
+		builder.Services.AddTransient<MixerPage>();
+		builder.Services.AddTransient<ConverterPage>();
 
 		RemoveNativeUnderlines();
 

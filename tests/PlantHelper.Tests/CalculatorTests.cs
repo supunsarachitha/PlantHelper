@@ -76,3 +76,41 @@ public class CalculatorTests
         Assert.Equal(28.349523125, Units.OzToG(1), 9);
     }
 }
+
+public class ToolMathTests
+{
+    [Fact]
+    public void HumidityForVpd_InvertsVpd()
+    {
+        var rh = GrowCalculators.HumidityForVpd(26, 1.2);
+        Assert.Equal(1.2, GrowCalculators.Vpd(26, rh), 3);
+        Assert.Equal(100, GrowCalculators.HumidityForVpd(20, -5));
+        Assert.Equal(0, GrowCalculators.HumidityForVpd(20, 50));
+    }
+
+    [Theory]
+    [InlineData("cm", "in", 2.54, 1)]
+    [InlineData("ft", "cm", 1, 30.48)]
+    [InlineData("gal", "L", 1, 3.785411784)]
+    [InlineData("tsp", "ml", 1, 4.92892159375)]
+    [InlineData("°C", "°F", 100, 212)]
+    [InlineData("°F", "°C", 32, 0)]
+    [InlineData("°C", "K", 0, 273.15)]
+    [InlineData("K", "°F", 373.15, 212)]
+    [InlineData("lb", "g", 1, 453.59237)]
+    [InlineData("kg", "oz", 1, 35.27396195)]
+    public void Convert(string from, string to, double value, double expected)
+    {
+        var f = UnitConversions.All.Single(u => u.Symbol == from);
+        var t = UnitConversions.All.Single(u => u.Symbol == to);
+        Assert.Equal(expected, UnitConversions.Convert(value, f, t), 6);
+    }
+
+    [Fact]
+    public void Convert_AcrossCategories_Throws() =>
+        Assert.Throws<ArgumentException>(() => UnitConversions.Convert(1, UnitConversions.All[0], UnitConversions.All[^1]));
+
+    [Fact]
+    public void EveryCategoryHasUnits() =>
+        Assert.All(Enum.GetValues<UnitCategory>(), c => Assert.True(UnitConversions.In(c).Count() >= 3));
+}
