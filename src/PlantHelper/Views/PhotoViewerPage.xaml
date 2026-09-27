@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PhotoViewerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    x:DataType="vm:PhotoViewerViewModel"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="Black"
+    SafeAreaEdges="None">
+
+    <Grid SafeAreaEdges="None" BackgroundColor="Black">
+        <Image Source="{Binding Current.Source}" Aspect="AspectFit" SemanticProperties.Description="{Binding Current.Summary}">
+            <Image.GestureRecognizers>
+                <SwipeGestureRecognizer Direction="Left" Command="{Binding NextCommand}" />
+                <SwipeGestureRecognizer Direction="Right" Command="{Binding PreviousCommand}" />
+            </Image.GestureRecognizers>
+        </Image>
+
+        <!-- Previous / next -->
+        <Button Text="{x:Static theme:Icons.ChevronLeft}" Style="{StaticResource OverlayIconButton}" HorizontalOptions="Start" VerticalOptions="Center" Margin="10,0"
+                Command="{Binding PreviousCommand}" IsVisible="{Binding HasPrevious}" SemanticProperties.Description="Previous photo" />
+        <Button Text="{x:Static theme:Icons.ChevronRight}" Style="{StaticResource OverlayIconButton}" HorizontalOptions="End" VerticalOptions="Center" Margin="10,0"
+                Command="{Binding NextCommand}" IsVisible="{Binding HasNext}" SemanticProperties.Description="Next photo" />
+
+        <!-- Top bar -->
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="12,8" VerticalOptions="Start" SafeAreaEdges="Container">
+            <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Close}" Command="{Binding CloseCommand}" SemanticProperties.Description="Close" />
+            <Label Grid.Column="1" Text="{Binding Counter}" TextColor="White" FontFamily="NunitoBold" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+            <Button Grid.Column="2" Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Compare}" Command="{Binding CompareCommand}" SemanticProperties.Description="Compare before and after" />
+        </Grid>
+
+        <!-- Bottom info + actions -->
+        <Grid VerticalOptions="End" SafeAreaEdges="None">
+            <BoxView Background="{StaticResource PhotoScrim}" Color="Transparent" />
+            <VerticalStackLayout Padding="20,48,20,16" Spacing="6" SafeAreaEdges="Container">
+                <Label Text="{Binding Current.Caption}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="20" IsVisible="{Binding Current.HasCaption}" />
+                <Label Text="{Binding Current.Summary}" TextColor="#E5E7EB" FontFamily="NunitoSemiBold" FontSize="14" />
+                <Grid ColumnDefinitions="*,*,*,*" Margin="0,10,0,0">
+                    <VerticalStackLayout Spacing="2">
+                        <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Pencil}" HorizontalOptions="Center" Command="{Binding EditCommand}" SemanticProperties.Description="Edit photo details" />
+                        <Label Text="Details" TextColor="White" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Star}" HorizontalOptions="Center" Command="{Binding SetCoverCommand}" SemanticProperties.Description="Use as cover" />
+                        <Label Text="Cover" TextColor="White" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="2">
+                        <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.ShareVariant}" HorizontalOptions="Center" Command="{Binding ShareCommand}" SemanticProperties.Description="Share photo" />
+                        <Label Text="Share" TextColor="White" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="3" Spacing="2">
+                        <Button Style="{StaticResource OverlayIconButton}" Text="{x:Static theme:Icons.Delete}" TextColor="#FCA5A5" HorizontalOptions="Center" Command="{Binding DeleteCommand}" SemanticProperties.Description="Delete photo" />
+                        <Label Text="Delete" TextColor="White" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

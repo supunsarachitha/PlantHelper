@@ -24,6 +24,11 @@
                         </Grid>
                     </Border>
 
+                    <!-- First photo prompt -->
+                    <Button Text="📷 Add photo" Style="{StaticResource SmallPillButton}" BackgroundColor="#40FFFFFF" TextColor="White"
+                            HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,44"
+                            Command="{Binding AddPhotoCommand}" IsVisible="{Binding HasCover, Converter={StaticResource Not}}" />
+
                     <!-- Title -->
                     <VerticalStackLayout VerticalOptions="End" Padding="20,0,20,40" Spacing="6">
                         <Border Style="{StaticResource Chip}" BackgroundColor="{Binding StageColor}" Padding="10,5">
@@ -85,7 +90,7 @@
                                 <Label Text="Water" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Flask}" Background="{StaticResource BerryGradient}" Command="{Binding LogCommand}" CommandParameter="Feed" SemanticProperties.Description="Log feeding" />
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Flask}" BackgroundColor="{StaticResource FeedColor}" Command="{Binding LogCommand}" CommandParameter="Feed" SemanticProperties.Description="Log feeding" />
                                 <Label Text="Feed" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="2" Spacing="4">
@@ -93,8 +98,8 @@
                                 <Label Text="Measure" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="3" Spacing="4">
-                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Thermometer}" BackgroundColor="{StaticResource EnvironmentColor}" Command="{Binding LogCommand}" CommandParameter="Environment" SemanticProperties.Description="Log climate" />
-                                <Label Text="Climate" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Camera}" Background="{StaticResource BerryGradient}" Command="{Binding AddPhotoCommand}" SemanticProperties.Description="Add growth photo" />
+                                <Label Text="Photo" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="4" Spacing="4">
                                 <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Plus}" Background="{StaticResource PrimaryGradient}" Command="{Binding MoreLogCommand}" SemanticProperties.Description="More journal entry types" />
@@ -235,7 +240,35 @@
 
                     <!-- ============ Photos tab ============ -->
                     <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPhotosTab}">
-                        <Label Style="{StaticResource Muted}" Text="Photos will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Style="{StaticResource PrimaryButton}" Background="{StaticResource BerryGradient}" Text="📷 Add photo" Command="{Binding AddPhotoCommand}" />
+                            <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Text="Before &amp; after" Command="{Binding CompareCommand}" IsEnabled="{Binding HasPhotos}" />
+                        </Grid>
+                        <VerticalStackLayout Spacing="8" Padding="0,20" IsVisible="{Binding HasPhotos, Converter={StaticResource Not}}">
+                            <Label Style="{StaticResource Icon}" FontSize="48" Text="{x:Static theme:Icons.Camera}" TextColor="#EC4899" />
+                            <Label Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" Text="No photos yet" />
+                            <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="A weekly photo with the height noted builds a beautiful growth timeline." />
+                        </VerticalStackLayout>
+                        <FlexLayout Wrap="Wrap" JustifyContent="Start" BindableLayout.ItemsSource="{Binding Photos}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PhotoItemViewModel">
+                                    <Border StrokeShape="RoundRectangle 16" Margin="0,0,8,8" BackgroundColor="#1F2937"
+                                            WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantDetailViewModel}}, Path=PhotoTileSize, x:DataType=vm:PlantDetailViewModel}"
+                                            HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantDetailViewModel}}, Path=PhotoTileSize, x:DataType=vm:PlantDetailViewModel}"
+                                            SemanticProperties.Description="{Binding Summary}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantDetailViewModel}}, Path=OpenPhotoCommand, x:DataType=vm:PlantDetailViewModel}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Grid>
+                                            <Image Source="{Binding Source}" Aspect="AspectFill" />
+                                            <Border Style="{StaticResource Chip}" BackgroundColor="#99000000" Padding="6,2" Margin="6" VerticalOptions="End">
+                                                <Label Text="{Binding DayText}" TextColor="White" FontFamily="NunitoBold" FontSize="11" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
                     </VerticalStackLayout>
 
                     <!-- ============ Growth tab ============ -->

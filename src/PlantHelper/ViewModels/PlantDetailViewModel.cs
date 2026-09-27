@@ -28,13 +28,15 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
     private readonly DialogService _dialogs;
     private readonly TimeProvider _time;
     private readonly CareActionsService _care;
+    private readonly PhotoService _photoService;
     private string? _plantId;
 
     public PlantDetailViewModel(
         PlantRepository plants, CareLogRepository logs, PhotoRepository photos, PhotoStore store,
-        SettingsService settings, DialogService dialogs, TimeProvider time, CareActionsService care)
+        SettingsService settings, DialogService dialogs, TimeProvider time, CareActionsService care, PhotoService photoService)
     {
         _care = care;
+        _photoService = photoService;
         _plants = plants;
         _logs = logs;
         _photos = photos;
@@ -100,6 +102,12 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
     public ObservableCollection<InfoRow> InfoRows { get; } = [];
     public ObservableCollection<InfoRow> Readings { get; } = [];
     public ObservableCollection<LogItemViewModel> Journal { get; } = [];
+    public ObservableCollection<PhotoItemViewModel> Photos { get; } = [];
+
+    [ObservableProperty] public partial bool HasPhotos { get; set; }
+
+    /// <summary>Three photo tiles per row on the Photos tab.</summary>
+    public double PhotoTileSize { get; } = Math.Floor((DeviceDisplay.MainDisplayInfo.Width / Math.Max(1, DeviceDisplay.MainDisplayInfo.Density) - 32 - 24) / 3); // 16dp page padding each side + 8dp right margin per tile
 
     [ObservableProperty] public partial bool HasReadings { get; set; }
     [ObservableProperty] public partial bool HasJournal { get; set; }
@@ -173,6 +181,12 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
 
         CanMarkWater = IsActive && plant.WaterEveryDays > 0;
         CanMarkFeed = IsActive && plant.FeedEveryDays > 0;
+
+        // Photos (newest first on the tab)
+        Photos.Clear();
+        foreach (var p in photos.Where(p => _store.Exists(p.FileName)).Reverse())
+            Photos.Add(new PhotoItemViewModel(p, _store.GetPath(p.FileName), plant, fmt));
+        HasPhotos = Photos.Count > 0;
 
         // Journal
         var describer = new LogDescriber(fmt);
@@ -258,6 +272,29 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
         if (choice is not null)
             await LogAsync(types.First(t => DisplayNames.Of(t) == choice).ToString());
     }
+
+    [RelayCommand]
+    private async Task AddPhotoAsync()
+    {
+        if (Plant is null)
+            return;
+        var added = await _photoService.AddInteractiveAsync(Plant);
+        if (added.Count == 1)
+            await Routes.GoAsync($"{Routes.PhotoEdit}?id={added[0].Id}&new=1");
+        else if (added.Count > 1)
+        {
+            await _dialogs.ToastAsync($"{added.Count} photos added 📸");
+            SelectedTab = DetailTab.Photos;
+            await LoadAsync();
+        }
+    }
+
+    [RelayCommand]
+    private Task OpenPhotoAsync(PhotoItemViewModel item) =>
+        Routes.GoAsync($"{Routes.PhotoViewer}?plantId={item.Photo.PlantId}&photoId={item.Id}");
+
+    [RelayCommand]
+    private Task CompareAsync() => Plant is null ? Task.CompletedTask : Routes.GoAsync($"{Routes.PhotoCompare}?plantId={Plant.Id}");
 
     [RelayCommand]
     private Task OpenLogAsync(LogItemViewModel item) => Routes.GoAsync($"{Routes.LogEdit}?id={item.Id}");

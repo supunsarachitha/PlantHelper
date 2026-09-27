@@ -10,8 +10,21 @@
 		android:supportsRtl="true"
 		android:label="PlantHelper"></application>
 
+	<!-- Growth photos. Gallery picks use the system Photo Picker, so no storage/media permission is requested. -->
+	<uses-permission android:name="android.permission.CAMERA" />
+	<!-- Tablets / Chromebooks without a camera can still install the app. -->
+	<uses-feature android:name="android.hardware.camera" android:required="false" />
+	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
 	<!-- Daily care reminder notification (Android 13+ runtime permission) -->
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<!-- Restore the daily reminder after the phone restarts -->
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+	<!-- Android 11+ package visibility: find the camera app for capture -->
+	<queries>
+		<intent>
+			<action android:name="android.media.action.IMAGE_CAPTURE" />
+		</intent>
+	</queries>
 </manifest>

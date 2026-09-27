@@ -37,6 +37,7 @@ public static class Icons
     public const string CheckCircle = "\U000F05E0";
     public const string Alert = "\U000F0026";
     public const string AlertCircle = "\U000F0028";
+    public const string ChevronLeft = "\U000F0141";
     public const string ChevronRight = "\U000F0142";
     public const string ShareVariant = "\U000F0497";
     public const string Export = "\U000F0207";

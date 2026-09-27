@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PhotoComparePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:PhotoCompareViewModel"
+    Title="Before &amp; after">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="{Binding Title}" Style="{StaticResource Title}" />
+            <Label Style="{StaticResource Muted}" Text="Add at least two photos to compare growth." IsVisible="{Binding HasEnoughPhotos, Converter={StaticResource Not}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <!-- Before -->
+                <VerticalStackLayout Spacing="8">
+                    <Border StrokeShape="RoundRectangle 20" HeightRequest="240" BackgroundColor="#111">
+                        <Grid>
+                            <Image Source="{Binding Before.Source}" Aspect="AspectFill" />
+                            <Border Style="{StaticResource Chip}" BackgroundColor="#CC3B82F6" Margin="8" VerticalOptions="Start">
+                                <Label Text="BEFORE" TextColor="White" FontFamily="NunitoExtraBold" FontSize="11" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Label Text="{Binding Before.DayText}" Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding Before.DateText}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <Button Style="{StaticResource SecondaryButton}" Text="{x:Static theme:Icons.ChevronLeft}" FontFamily="MDI" WidthRequest="52" Padding="0" Command="{Binding BeforePreviousCommand}" SemanticProperties.Description="Earlier before photo" />
+                        <Button Style="{StaticResource SecondaryButton}" Text="{x:Static theme:Icons.ChevronRight}" FontFamily="MDI" WidthRequest="52" Padding="0" Command="{Binding BeforeNextCommand}" SemanticProperties.Description="Later before photo" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                <!-- After -->
+                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                    <Border StrokeShape="RoundRectangle 20" HeightRequest="240" BackgroundColor="#111">
+                        <Grid>
+                            <Image Source="{Binding After.Source}" Aspect="AspectFill" />
+                            <Border Style="{StaticResource Chip}" BackgroundColor="#CC10B981" Margin="8" VerticalOptions="Start">
+                                <Label Text="AFTER" TextColor="White" FontFamily="NunitoExtraBold" FontSize="11" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Label Text="{Binding After.DayText}" Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding After.DateText}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <Button Style="{StaticResource SecondaryButton}" Text="{x:Static theme:Icons.ChevronLeft}" FontFamily="MDI" WidthRequest="52" Padding="0" Command="{Binding AfterPreviousCommand}" SemanticProperties.Description="Earlier after photo" />
+                        <Button Style="{StaticResource SecondaryButton}" Text="{x:Static theme:Icons.ChevronRight}" FontFamily="MDI" WidthRequest="52" Padding="0" Command="{Binding AfterNextCommand}" SemanticProperties.Description="Later after photo" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Background="{StaticResource HeaderGradient}">
+                <Grid ColumnDefinitions="*,*,*">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding DaysText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="16" HorizontalTextAlignment="Center" />
+                        <Label Text="Time" TextColor="#D1FAE5" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                        <Label Text="{Binding GrowthText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="16" HorizontalTextAlignment="Center" />
+                        <Label Text="Growth" TextColor="#D1FAE5" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                        <Label Text="{Binding RateText}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="16" HorizontalTextAlignment="Center" />
+                        <Label Text="Rate" TextColor="#D1FAE5" FontSize="12" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

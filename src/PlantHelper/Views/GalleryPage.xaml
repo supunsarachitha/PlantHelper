@@ -3,17 +3,75 @@
     x:Class="PlantHelper.Views.GalleryPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    x:DataType="vm:GalleryViewModel"
     Shell.NavBarIsVisible="False"
     SafeAreaEdges="None">
-    <Grid RowDefinitions="Auto,*">
-        <Border Style="{StaticResource Header}">
+
+    <Grid RowDefinitions="Auto,Auto,*" SafeAreaEdges="None">
+        <Border Style="{StaticResource Header}" Background="{StaticResource BerryGradient}" SafeAreaEdges="None">
             <VerticalStackLayout SafeAreaEdges="Container" Spacing="2">
-                <Label Style="{StaticResource HeaderTitle}" Text="Growth Gallery" />
-                <Label Style="{StaticResource HeaderSubtitle}" Text="Watch them grow" />
+                <Label Style="{StaticResource HeaderTitle}" Text="Growth Gallery" SemanticProperties.HeadingLevel="Level1" />
+                <Label Style="{StaticResource HeaderSubtitle}" TextColor="#FCE7F3" Text="{Binding Summary}" />
             </VerticalStackLayout>
         </Border>
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16" VerticalOptions="Start">
-            <Label Text="Coming soon" Style="{StaticResource Subtitle}" />
-        </Border>
+
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" IsVisible="{Binding IsEmpty, Converter={StaticResource Not}}">
+            <HorizontalStackLayout Padding="16,14,16,6" Spacing="8" BindableLayout.ItemsSource="{Binding Filters}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SelectableOption">
+                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="14,0" HeightRequest="40" SemanticProperties.Description="{Binding Label}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GalleryViewModel}}, Path=SelectFilterCommand, x:DataType=vm:GalleryViewModel}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="16" Text="{Binding Icon}" TextColor="{Binding Foreground}" />
+                                <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="14" TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Photos}" SelectionMode="None" Margin="10,4,10,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="0" VerticalItemSpacing="0" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.Footer>
+                <BoxView HeightRequest="96" Color="Transparent" />
+            </CollectionView.Footer>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="32,40" Spacing="14">
+                    <Border WidthRequest="120" HeightRequest="120" StrokeShape="RoundRectangle 60" Background="{StaticResource BerryGradient}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="58" TextColor="White" Text="{x:Static theme:Icons.Camera}" />
+                    </Border>
+                    <Label Style="{StaticResource Title}" HorizontalTextAlignment="Center" Text="Capture the journey" />
+                    <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="Take a photo every week to see your plants grow. Photos stay on this device." />
+                    <Button Style="{StaticResource PrimaryButton}" Background="{StaticResource BerryGradient}" Text="Take first photo" Command="{Binding AddPhotoCommand}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:PhotoItemViewModel">
+                    <Border StrokeShape="RoundRectangle 20" Margin="6" HeightRequest="210" BackgroundColor="#1F2937" SemanticProperties.Description="{Binding Summary}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GalleryViewModel}}, Path=OpenCommand, x:DataType=vm:GalleryViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid>
+                            <Image Source="{Binding Source}" Aspect="AspectFill" />
+                            <BoxView Background="{StaticResource PhotoScrim}" Color="Transparent" />
+                            <VerticalStackLayout VerticalOptions="End" Padding="12,0,12,10">
+                                <Label Text="{Binding PlantName}" TextColor="White" FontFamily="NunitoExtraBold" FontSize="15" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding DayText}" TextColor="#E5E7EB" FontFamily="NunitoSemiBold" FontSize="12" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="2" Style="{StaticResource Fab}" Background="{StaticResource BerryGradient}" Text="{x:Static theme:Icons.Camera}"
+                Command="{Binding AddPhotoCommand}" SemanticProperties.Description="Add photo" />
     </Grid>
 </ContentPage>
