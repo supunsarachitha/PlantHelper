@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.NutrientsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:NutrientsViewModel"
+    Title="Nutrient library">
+    <Grid>
+        <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
+            <CollectionView.Header>
+                <Label Style="{StaticResource Muted}" Margin="20,16,20,4"
+                       Text="Save the fertilisers and additives you use. They can be added to feedings with one tap, with their label dose." />
+            </CollectionView.Header>
+            <CollectionView.Footer>
+                <BoxView HeightRequest="96" Color="Transparent" />
+            </CollectionView.Footer>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="32,48" Spacing="12">
+                    <Border WidthRequest="110" HeightRequest="110" StrokeShape="RoundRectangle 55" Background="{StaticResource BerryGradient}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="54" TextColor="White" Text="{x:Static theme:Icons.Flask}" />
+                    </Border>
+                    <Label Style="{StaticResource Title}" HorizontalTextAlignment="Center" Text="No nutrients yet" />
+                    <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="Add your base nutrients, Cal-Mag, boosters and pH adjusters." />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:NutrientItemViewModel">
+                    <Border Style="{StaticResource Card}" Margin="16,6" Padding="12" SemanticProperties.Description="{Binding Name}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NutrientsViewModel}}, Path=OpenCommand, x:DataType=vm:NutrientsViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                            <Border WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 16" BackgroundColor="{Binding Soft}">
+                                <Label Text="{Binding Initial}" FontFamily="NunitoExtraBold" FontSize="22" TextColor="{Binding Color}" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding Name}" Style="{StaticResource Subtitle}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Subtitle}" Style="{StaticResource Muted}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="4" HorizontalOptions="End">
+                                <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Soft}" Padding="8,3" IsVisible="{Binding HasNpk}" HorizontalOptions="End">
+                                    <Label Text="{Binding Npk}" FontFamily="NunitoBold" FontSize="12" TextColor="{Binding Color}" />
+                                </Border>
+                                <Label Text="{Binding DoseText}" Style="{StaticResource Caption}" IsVisible="{Binding HasDose}" HorizontalTextAlignment="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <Button Style="{StaticResource Fab}" Background="{StaticResource BerryGradient}" Text="{x:Static theme:Icons.Plus}" Command="{Binding AddCommand}" SemanticProperties.Description="Add nutrient" />
+    </Grid>
+</ContentPage>

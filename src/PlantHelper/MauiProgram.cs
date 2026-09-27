@@ -37,11 +37,22 @@ public static class MauiProgram
 		builder.Services.AddSingleton<CareScheduleService>();
 		builder.Services.AddSingleton<SettingsService>();
 		builder.Services.AddSingleton<DialogService>();
+		builder.Services.AddSingleton<CareActionsService>();
+#if ANDROID
+		builder.Services.AddSingleton<IReminderScheduler, Platforms.Android.AndroidReminderScheduler>();
+#elif IOS || MACCATALYST
+		builder.Services.AddSingleton<IReminderScheduler, Services.Apple.AppleReminderScheduler>();
+#else
+		builder.Services.AddSingleton<IReminderScheduler, NoReminderScheduler>();
+#endif
 
 		// View models
 		builder.Services.AddTransient<PlantsViewModel>();
 		builder.Services.AddTransient<PlantEditViewModel>();
 		builder.Services.AddTransient<PlantDetailViewModel>();
+		builder.Services.AddTransient<LogEditViewModel>();
+		builder.Services.AddTransient<NutrientsViewModel>();
+		builder.Services.AddTransient<NutrientEditViewModel>();
 
 		builder.Services.AddTransient<HomePage>();
 		builder.Services.AddTransient<PlantsPage>();
@@ -50,6 +61,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<SettingsPage>();
 		builder.Services.AddTransient<PlantDetailPage>();
 		builder.Services.AddTransient<PlantEditPage>();
+		builder.Services.AddTransient<LogEditPage>();
+		builder.Services.AddTransient<NutrientsPage>();
+		builder.Services.AddTransient<NutrientEditPage>();
 
 		RemoveNativeUnderlines();
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.NutrientEditPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:NutrientEditViewModel"
+    Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="16">
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <controls:FormEntry Label="Product name *" Text="{Binding Name}" Keyboard="Text" MaxLength="60" Placeholder="e.g. Flora Bloom" />
+                        <controls:FormEntry Label="Brand" Text="{Binding Brand}" Keyboard="Text" MaxLength="60" Placeholder="optional" />
+                        <Label Style="{StaticResource FieldLabel}" Text="Type" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Types}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SelectableOption">
+                                    <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="12,0" HeightRequest="38" Margin="0,0,8,8" SemanticProperties.Description="{Binding Label}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NutrientEditViewModel}}, Path=SelectTypeCommand, x:DataType=vm:NutrientEditViewModel}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="13" TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Analysis &amp; dose" />
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <controls:FormEntry Label="N %" Text="{Binding N}" Placeholder="3" />
+                            <controls:FormEntry Grid.Column="1" Label="P %" Text="{Binding P}" Placeholder="1" />
+                            <controls:FormEntry Grid.Column="2" Label="K %" Text="{Binding K}" Placeholder="6" />
+                        </Grid>
+                        <controls:FormEntry Label="Label dose" Unit="ml/L" Text="{Binding Dose}" Placeholder="2" />
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource FieldLabel}" Text="Notes" />
+                            <Border Style="{StaticResource FormField}" Padding="10,4">
+                                <Editor Text="{Binding Notes}" Placeholder="Mixing order, schedule week…" AutoSize="TextChanges" MinimumHeightRequest="70" MaxLength="1000" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+                <Button Style="{StaticResource DangerButton}" Text="Delete nutrient" Command="{Binding DeleteCommand}" IsVisible="{Binding IsExisting}" />
+            </VerticalStackLayout>
+        </ScrollView>
+        <Border Grid.Row="1" Padding="16,10,16,12" BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+            <Button Style="{StaticResource PrimaryButton}" Text="Save nutrient" Command="{Binding SaveCommand}" />
+        </Border>
+    </Grid>
+</ContentPage>

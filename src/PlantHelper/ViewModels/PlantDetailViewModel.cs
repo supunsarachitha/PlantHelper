@@ -27,12 +27,14 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
     private readonly TimeProvider _time;
+    private readonly CareActionsService _care;
     private string? _plantId;
 
     public PlantDetailViewModel(
         PlantRepository plants, CareLogRepository logs, PhotoRepository photos, PhotoStore store,
-        SettingsService settings, DialogService dialogs, TimeProvider time)
+        SettingsService settings, DialogService dialogs, TimeProvider time, CareActionsService care)
     {
+        _care = care;
         _plants = plants;
         _logs = logs;
         _photos = photos;
@@ -96,6 +98,13 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
     public bool IsGrowthTab => SelectedTab == DetailTab.Growth;
 
     public ObservableCollection<InfoRow> InfoRows { get; } = [];
+    public ObservableCollection<InfoRow> Readings { get; } = [];
+    public ObservableCollection<LogItemViewModel> Journal { get; } = [];
+
+    [ObservableProperty] public partial bool HasReadings { get; set; }
+    [ObservableProperty] public partial bool HasJournal { get; set; }
+    [ObservableProperty] public partial bool CanMarkWater { get; set; }
+    [ObservableProperty] public partial bool CanMarkFeed { get; set; }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -162,6 +171,35 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
         WaterStatus = BuildStatus(water, plant.WaterEveryDays, "Watering", Icons.Water, Visuals.LogColor(LogType.Water), today);
         FeedStatus = BuildStatus(feed, plant.FeedEveryDays, "Feeding", Icons.Flask, Visuals.LogColor(LogType.Feed), today);
 
+        CanMarkWater = IsActive && plant.WaterEveryDays > 0;
+        CanMarkFeed = IsActive && plant.FeedEveryDays > 0;
+
+        // Journal
+        var describer = new LogDescriber(fmt);
+        Journal.Clear();
+        foreach (var log in logs)
+            Journal.Add(new LogItemViewModel(log, describer));
+        HasJournal = Journal.Count > 0;
+
+        // Latest readings
+        Readings.Clear();
+        void Reading(string icon, string label, string? value, LogType colorOf)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && value != "–")
+                Readings.Add(new InfoRow(icon, label, value, Visuals.LogColor(colorOf)));
+        }
+        CareLog? Latest(Func<CareLog, bool> has) => logs.FirstOrDefault(has); // logs are newest first
+        var heightSeries = GrowthAnalytics.HeightSeries(logs, photos);
+        Reading(Icons.Ruler, "Height", heightSeries.Count > 0 ? fmt.FormatLength(heightSeries[^1].Value) : null, LogType.Measure);
+        Reading(Icons.Ph, "pH", Latest(l => l.Ph is not null)?.Ph?.ToString("0.0"), LogType.Water);
+        Reading(Icons.Flask, fmt.StrengthUnit, Latest(l => l.Ec is not null) is { } ec ? fmt.FormatStrength(ec.Ec) : null, LogType.Feed);
+        Reading(Icons.Thermometer, "Temp", Latest(l => l.TempC is not null) is { } t ? fmt.FormatTemperature(t.TempC) : null, LogType.Environment);
+        Reading(Icons.WaterPercent, "Humidity", Latest(l => l.HumidityPct is not null)?.HumidityPct is { } rh ? $"{rh:0}%" : null, LogType.Environment);
+        Reading(Icons.WhiteBalanceSunny, "Light", Latest(l => l.LightHours is not null)?.LightHours is { } lh ? $"{lh:0.#} h" : null, LogType.Training);
+        var harvested = logs.Where(l => l.Type == LogType.Harvest).Sum(l => l.WeightG ?? 0);
+        Reading(Icons.Basket, "Harvested", harvested > 0 ? fmt.FormatWeight(harvested) : null, LogType.Harvest);
+        HasReadings = Readings.Count > 0;
+
         // Info rows
         InfoRows.Clear();
         void Add(string icon, string label, string? value, string color)
@@ -205,6 +243,35 @@ public partial class PlantDetailViewModel : BaseViewModel, IQueryAttributable
 
     [RelayCommand]
     private void SelectTab(SelectableOption tab) => SelectedTab = (DetailTab)tab.Value;
+
+    [RelayCommand]
+    private Task LogAsync(string type) =>
+        Plant is null ? Task.CompletedTask : Routes.GoAsync($"{Routes.LogEdit}?plantId={Plant.Id}&type={type}");
+
+    [RelayCommand]
+    private async Task MoreLogAsync()
+    {
+        if (Plant is null)
+            return;
+        var types = Enum.GetValues<LogType>().Where(t => t != LogType.Stage).ToList();
+        var choice = await _dialogs.ChooseAsync("Add journal entry", [.. types.Select(DisplayNames.Of)]);
+        if (choice is not null)
+            await LogAsync(types.First(t => DisplayNames.Of(t) == choice).ToString());
+    }
+
+    [RelayCommand]
+    private Task OpenLogAsync(LogItemViewModel item) => Routes.GoAsync($"{Routes.LogEdit}?id={item.Id}");
+
+    [RelayCommand]
+    private async Task MarkDoneAsync(string kind)
+    {
+        if (Plant is null)
+            return;
+        var k = Enum.Parse<CareTaskKind>(kind);
+        await _care.QuickLogAsync(Plant, k);
+        await _dialogs.ToastAsync(k == CareTaskKind.Water ? $"💧 {Plant.Name} watered" : $"🧪 {Plant.Name} fed");
+        await LoadAsync();
+    }
 
     [RelayCommand]
     private Task EditAsync() => Plant is null ? Task.CompletedTask : Routes.GoAsync($"{Routes.PlantEdit}?id={Plant.Id}");

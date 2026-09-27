@@ -66,6 +66,43 @@
                         </Border>
                     </Grid>
 
+                    <!-- Quick actions -->
+                    <Border Style="{StaticResource Card}" Padding="8,12" IsVisible="{Binding IsActive}">
+                        <Grid ColumnDefinitions="*,*,*,*,*">
+                            <Grid.Resources>
+                                <Style x:Key="QuickAction" TargetType="Button">
+                                    <Setter Property="FontFamily" Value="MDI" />
+                                    <Setter Property="FontSize" Value="24" />
+                                    <Setter Property="WidthRequest" Value="52" />
+                                    <Setter Property="HeightRequest" Value="52" />
+                                    <Setter Property="CornerRadius" Value="18" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="HorizontalOptions" Value="Center" />
+                                </Style>
+                            </Grid.Resources>
+                            <VerticalStackLayout Spacing="4">
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Water}" Background="{StaticResource OceanGradient}" Command="{Binding LogCommand}" CommandParameter="Water" SemanticProperties.Description="Log watering" />
+                                <Label Text="Water" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Flask}" Background="{StaticResource BerryGradient}" Command="{Binding LogCommand}" CommandParameter="Feed" SemanticProperties.Description="Log feeding" />
+                                <Label Text="Feed" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Ruler}" Background="{StaticResource SunsetGradient}" Command="{Binding LogCommand}" CommandParameter="Measure" SemanticProperties.Description="Log measurement" />
+                                <Label Text="Measure" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="3" Spacing="4">
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Thermometer}" BackgroundColor="{StaticResource EnvironmentColor}" Command="{Binding LogCommand}" CommandParameter="Environment" SemanticProperties.Description="Log climate" />
+                                <Label Text="Climate" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="4" Spacing="4">
+                                <Button Style="{StaticResource QuickAction}" Text="{x:Static theme:Icons.Plus}" Background="{StaticResource PrimaryGradient}" Command="{Binding MoreLogCommand}" SemanticProperties.Description="More journal entry types" />
+                                <Label Text="More" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
                     <!-- Tabs -->
                     <FlexLayout JustifyContent="SpaceBetween" BindableLayout.ItemsSource="{Binding Tabs}">
                         <BindableLayout.ItemTemplate>
@@ -94,6 +131,8 @@
                                     <Label Style="{StaticResource Icon}" HorizontalOptions="Start" FontSize="26" Text="{Binding WaterStatus.Icon}" TextColor="{Binding WaterStatus.Color}" />
                                     <Label Text="{Binding WaterStatus.Title}" FontFamily="NunitoExtraBold" FontSize="15" TextColor="{Binding WaterStatus.Color}" />
                                     <Label Text="{Binding WaterStatus.Detail}" Style="{StaticResource Caption}" />
+                                    <Button Text="Mark done" Style="{StaticResource SmallPillButton}" BackgroundColor="{StaticResource WaterColor}" Margin="0,6,0,0" HorizontalOptions="Start"
+                                            Command="{Binding MarkDoneCommand}" CommandParameter="Water" IsVisible="{Binding CanMarkWater}" />
                                 </VerticalStackLayout>
                             </Border>
                             <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14" BackgroundColor="{Binding FeedStatus.Soft}">
@@ -101,9 +140,32 @@
                                     <Label Style="{StaticResource Icon}" HorizontalOptions="Start" FontSize="26" Text="{Binding FeedStatus.Icon}" TextColor="{Binding FeedStatus.Color}" />
                                     <Label Text="{Binding FeedStatus.Title}" FontFamily="NunitoExtraBold" FontSize="15" TextColor="{Binding FeedStatus.Color}" />
                                     <Label Text="{Binding FeedStatus.Detail}" Style="{StaticResource Caption}" />
+                                    <Button Text="Mark done" Style="{StaticResource SmallPillButton}" BackgroundColor="{StaticResource FeedColor}" Margin="0,6,0,0" HorizontalOptions="Start"
+                                            Command="{Binding MarkDoneCommand}" CommandParameter="Feed" IsVisible="{Binding CanMarkFeed}" />
                                 </VerticalStackLayout>
                             </Border>
                         </Grid>
+
+                        <Border Style="{StaticResource Card}" IsVisible="{Binding HasReadings}">
+                            <VerticalStackLayout Spacing="10">
+                                <Label Style="{StaticResource SectionTitle}" Text="Latest readings" />
+                                <FlexLayout Wrap="Wrap" JustifyContent="Start" BindableLayout.ItemsSource="{Binding Readings}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:InfoRow">
+                                            <Border StrokeShape="RoundRectangle 16" BackgroundColor="{Binding Color, Converter={StaticResource SoftColor}}" Padding="12,8" Margin="0,0,8,8" MinimumWidthRequest="92">
+                                                <VerticalStackLayout Spacing="0">
+                                                    <HorizontalStackLayout Spacing="4">
+                                                        <Label Style="{StaticResource Icon}" FontSize="14" Text="{Binding Icon}" TextColor="{Binding Color}" />
+                                                        <Label Text="{Binding Label}" Style="{StaticResource Caption}" TextColor="{Binding Color}" />
+                                                    </HorizontalStackLayout>
+                                                    <Label Text="{Binding Value}" FontFamily="NunitoExtraBold" FontSize="17" />
+                                                </VerticalStackLayout>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                            </VerticalStackLayout>
+                        </Border>
 
                         <Border Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="4">
@@ -138,8 +200,37 @@
                     </VerticalStackLayout>
 
                     <!-- ============ Journal tab ============ -->
-                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsJournalTab}">
-                        <Label Style="{StaticResource Muted}" Text="Journal entries will appear here." HorizontalTextAlignment="Center" Margin="0,20" />
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding IsJournalTab}">
+                        <Button Style="{StaticResource SecondaryButton}" Text="+ Add journal entry" Command="{Binding MoreLogCommand}" />
+                        <VerticalStackLayout Spacing="8" Padding="0,20" IsVisible="{Binding HasJournal, Converter={StaticResource Not}}">
+                            <Label Style="{StaticResource Icon}" FontSize="48" Text="{x:Static theme:Icons.NoteText}" TextColor="#8B5CF6" />
+                            <Label Style="{StaticResource Subtitle}" HorizontalTextAlignment="Center" Text="No entries yet" />
+                            <Label Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Text="Log waterings, feedings, measurements and more to build this plant's story." />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Journal}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LogItemViewModel">
+                                    <Border Style="{StaticResource Card}" Padding="12" SemanticProperties.Description="{Binding Title}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantDetailViewModel}}, Path=OpenLogCommand, x:DataType=vm:PlantDetailViewModel}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="46,*" ColumnSpacing="12">
+                                            <Border WidthRequest="46" HeightRequest="46" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Soft}" VerticalOptions="Start">
+                                                <Label Style="{StaticResource Icon}" Text="{Binding Icon}" TextColor="{Binding Color}" />
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <Label Text="{Binding Title}" FontFamily="NunitoBold" FontSize="15" TextColor="{Binding Color}" LineBreakMode="TailTruncation" />
+                                                    <Label Grid.Column="1" Text="{Binding DateText}" Style="{StaticResource Caption}" />
+                                                </Grid>
+                                                <Label Text="{Binding Details}" Style="{StaticResource Body}" IsVisible="{Binding HasDetails}" />
+                                                <Label Text="{Binding Notes}" Style="{StaticResource Muted}" FontAttributes="Italic" IsVisible="{Binding HasNotes}" MaxLines="3" LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
 
                     <!-- ============ Photos tab ============ -->

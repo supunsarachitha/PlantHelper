@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.LogEditPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:PlantHelper.ViewModels"
+    xmlns:controls="clr-namespace:PlantHelper.Controls"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    x:DataType="vm:LogEditViewModel"
+    Title="{Binding Title}">
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,24" Spacing="16">
+
+                <!-- Type header -->
+                <Border Style="{StaticResource Card}" BackgroundColor="{Binding TypeColor, Converter={StaticResource SoftColor}}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border Style="{StaticResource IconBadge}" BackgroundColor="{Binding TypeColor}" WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 16">
+                            <Label Style="{StaticResource Icon}" FontSize="28" TextColor="White" Text="{Binding TypeIcon}" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding TypeTitle}" Style="{StaticResource Title}" TextColor="{Binding TypeColor}" />
+                            <Label Text="{Binding PlantName}" Style="{StaticResource Muted}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Type chips -->
+                <FlexLayout Wrap="Wrap" IsVisible="{Binding CanChangeType}" BindableLayout.ItemsSource="{Binding Types}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SelectableOption">
+                            <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="12,0" HeightRequest="40" Margin="0,0,8,8"
+                                    SemanticProperties.Description="{Binding Label}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LogEditViewModel}}, Path=SelectTypeCommand, x:DataType=vm:LogEditViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Style="{StaticResource Icon}" FontSize="16" Text="{Binding Icon}" TextColor="{Binding Foreground}" />
+                                    <Label Text="{Binding Label}" FontFamily="NunitoBold" FontSize="14" TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <!-- When -->
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource FieldLabel}" Text="Date" />
+                            <Border Style="{StaticResource FormField}">
+                                <DatePicker Date="{Binding Date}" Format="d MMM yyyy" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Style="{StaticResource FieldLabel}" Text="Time" />
+                            <Border Style="{StaticResource FormField}">
+                                <TimePicker Time="{Binding Time}" Format="HH:mm" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Stage change (read only) -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsStage}">
+                    <Label Text="{Binding StageText}" Style="{StaticResource Subtitle}" />
+                </Border>
+
+                <!-- Water / feed -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsWaterOrFeed}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Solution" />
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <controls:FormEntry Label="Amount" Unit="{Binding VolumeUnit}" Text="{Binding Amount}" Placeholder="{Binding AmountHint}" />
+                            <controls:FormEntry Grid.Column="1" Label="pH" Text="{Binding Ph}" Placeholder="6.2" />
+                            <controls:FormEntry Grid.Column="2" Label="Strength" Unit="{Binding StrengthUnit}" Text="{Binding Strength}" Placeholder="{Binding StrengthHint}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <controls:FormEntry Label="Water temp" Unit="{Binding TempUnit}" Text="{Binding WaterTemp}" Placeholder="{Binding WaterTempHint}" />
+                            <controls:FormEntry Grid.Column="1" Label="Runoff pH" Text="{Binding RunoffPh}" Placeholder="6.0" />
+                            <controls:FormEntry Grid.Column="2" Label="Runoff" Unit="{Binding StrengthUnit}" Text="{Binding RunoffStrength}" Placeholder="{Binding StrengthHint}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Nutrients (feed) -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsFeed}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Style="{StaticResource SectionTitle}" Text="Nutrients" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Style="{StaticResource SmallPillButton}" BackgroundColor="{StaticResource FeedColor}" Text="+ Add nutrient" Command="{Binding AddDoseCommand}" />
+                        </Grid>
+                        <Label Style="{StaticResource Caption}" Text="Add products from your library or type a custom one. Doses are in ml per litre." />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Doses}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DoseItemViewModel">
+                                    <Border Style="{StaticResource FlatCard}" Padding="12,8">
+                                        <Grid ColumnDefinitions="*,110,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                                            <Label Text="{Binding Name}" FontFamily="NunitoBold" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                                            <Border Grid.Column="1" Style="{StaticResource FormField}" MinimumHeightRequest="44">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <Entry Text="{Binding MlPerLiterText}" Keyboard="Numeric" Placeholder="0" SemanticProperties.Description="{Binding Name}" />
+                                                    <Label Grid.Column="1" Text="ml/L" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                                </Grid>
+                                            </Border>
+                                            <Button Grid.Column="2" Text="{x:Static theme:Icons.Close}" FontFamily="MDI" FontSize="18" Padding="0" WidthRequest="44" HeightRequest="44"
+                                                    BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LogEditViewModel}}, Path=RemoveDoseCommand, x:DataType=vm:LogEditViewModel}"
+                                                    CommandParameter="{Binding .}" SemanticProperties.Description="Remove nutrient" />
+                                            <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding TotalText}" Style="{StaticResource Caption}" TextColor="{StaticResource FeedColor}"
+                                                   IsVisible="{Binding TotalText, Converter={toolkit:IsStringNotNullOrEmptyConverter}}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Measure -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsMeasure}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Measurements" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto" RowSpacing="12">
+                            <controls:FormEntry Label="Height" Unit="{Binding LengthUnit}" Text="{Binding Height}" Placeholder="{Binding HeightHint}" />
+                            <controls:FormEntry Grid.Column="1" Label="Width / spread" Unit="{Binding LengthUnit}" Text="{Binding Width}" Placeholder="{Binding WidthHint}" />
+                            <controls:FormEntry Grid.Row="1" Label="Nodes" Text="{Binding Nodes}" Placeholder="8" />
+                            <controls:FormEntry Grid.Row="1" Grid.Column="1" Label="Leaves" Text="{Binding Leaves}" Placeholder="24" />
+                        </Grid>
+                        <Label Style="{StaticResource Caption}" Text="Height readings build your growth chart. Tip: measure from the soil line." />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Environment -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsEnvironment}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Climate &amp; light" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                            <controls:FormEntry Label="Temperature" Unit="{Binding TempUnit}" Text="{Binding Temp}" Placeholder="{Binding TempHint}" />
+                            <controls:FormEntry Grid.Column="1" Label="Humidity" Unit="%" Text="{Binding Humidity}" Placeholder="60" />
+                            <controls:FormEntry Grid.Row="1" Label="Light hours" Unit="h" Text="{Binding LightHours}" Placeholder="18" />
+                            <controls:FormEntry Grid.Row="1" Grid.Column="1" Label="PPFD" Unit="µmol" Text="{Binding Ppfd}" Placeholder="600" />
+                            <controls:FormEntry Grid.Row="2" Label="CO₂" Unit="ppm" Text="{Binding Co2}" Placeholder="800" />
+                            <controls:FormEntry Grid.Row="2" Grid.Column="1" Label="Soil moisture" Unit="%" Text="{Binding SoilMoisture}" Placeholder="40" />
+                        </Grid>
+                        <Border Style="{StaticResource Chip}" BackgroundColor="#1A06B6D4" Padding="12,8" HorizontalOptions="Fill"
+                                IsVisible="{Binding VpdText, Converter={toolkit:IsStringNotNullOrEmptyConverter}}">
+                            <Label Text="{Binding VpdText}" FontFamily="NunitoBold" FontSize="13" TextColor="{StaticResource EnvironmentColor}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Pest / training -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsPest}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Problem" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <controls:FormEntry Label="Pest / disease / deficiency" Text="{Binding Issue}" Keyboard="Text" MaxLength="80" Placeholder="e.g. Aphids" />
+                            <Button Grid.Column="1" Style="{StaticResource SmallPillButton}" BackgroundColor="{StaticResource PestColor}" Text="Common" VerticalOptions="End" Margin="0,0,0,3" Command="{Binding PickIssueCommand}" />
+                        </Grid>
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource FieldLabel}" Text="Severity" />
+                            <Border Style="{StaticResource FormField}">
+                                <Picker ItemsSource="{Binding Severities}" SelectedIndex="{Binding SeverityIndex}" Title="Severity" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <controls:FormEntry Label="Treatment" Text="{Binding Treatment}" Keyboard="Text" MaxLength="120" Placeholder="e.g. Neem oil spray" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsTraining}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Training / pruning" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <controls:FormEntry Label="Method" Text="{Binding Issue}" Keyboard="Text" MaxLength="80" Placeholder="e.g. Topping" />
+                            <Button Grid.Column="1" Style="{StaticResource SmallPillButton}" BackgroundColor="{StaticResource TrainingColor}" Text="Choose" VerticalOptions="End" Margin="0,0,0,3" Command="{Binding PickMethodCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Transplant -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsTransplant}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="New home" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <controls:FormEntry Label="New container" Unit="{Binding ContainerUnit}" Text="{Binding ContainerSize}" Placeholder="{Binding ContainerHint}" />
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Style="{StaticResource FieldLabel}" Text="Medium" />
+                                <Border Style="{StaticResource FormField}">
+                                    <Picker ItemsSource="{Binding TransplantMediums}" SelectedIndex="{Binding TransplantMediumIndex}" Title="Medium" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Label Style="{StaticResource Caption}" Text="The plant's container and medium are updated when you save." />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Harvest -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsHarvest}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitle}" Text="Harvest" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <controls:FormEntry Label="Weight" Unit="{Binding WeightUnit}" Text="{Binding Weight}" Placeholder="{Binding WeightHint}" />
+                            <controls:FormEntry Grid.Column="1" Label="Quantity" Unit="pcs" Text="{Binding Quantity}" Placeholder="12" />
+                        </Grid>
+                        <Label Style="{StaticResource FieldLabel}" Text="Quality" />
+                        <HorizontalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding Stars}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SelectableOption">
+                                    <Button Text="{Binding Icon}" FontFamily="MDI" FontSize="30" Padding="0" WidthRequest="48" HeightRequest="48" BackgroundColor="Transparent"
+                                            TextColor="{Binding Background}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LogEditViewModel}}, Path=SetRatingCommand, x:DataType=vm:LogEditViewModel}"
+                                            CommandParameter="{Binding .}" SemanticProperties.Description="{Binding Label, StringFormat='{0} star rating'}" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Notes -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource SectionTitle}" Text="Notes" />
+                        <Border Style="{StaticResource FormField}" Padding="10,4">
+                            <Editor Text="{Binding Notes}" Placeholder="Observations, colour of leaves, smell…" AutoSize="TextChanges" MinimumHeightRequest="80" MaxLength="2000" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Style="{StaticResource DangerButton}" Text="Delete entry" Command="{Binding DeleteCommand}" IsVisible="{Binding IsExisting}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Border Grid.Row="1" Padding="16,10,16,12" BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+            <Border.Shadow>
+                <Shadow Brush="#22000000" Offset="0,-2" Radius="10" />
+            </Border.Shadow>
+            <Button Style="{StaticResource PrimaryButton}" Text="Save entry" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
+        </Border>
+    </Grid>
+</ContentPage>

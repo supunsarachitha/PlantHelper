@@ -22,6 +22,9 @@ public static class Routes
     {
         Routing.RegisterRoute(PlantDetail, typeof(PlantDetailPage));
         Routing.RegisterRoute(PlantEdit, typeof(PlantEditPage));
+        Routing.RegisterRoute(LogEdit, typeof(LogEditPage));
+        Routing.RegisterRoute(Nutrients, typeof(NutrientsPage));
+        Routing.RegisterRoute(NutrientEdit, typeof(NutrientEditPage));
     }
 
     public static Task GoAsync(string route, IDictionary<string, object>? parameters = null) =>
