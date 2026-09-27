@@ -89,6 +89,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<PpmEcPage>();
 		builder.Services.AddTransient<MixerPage>();
 		builder.Services.AddTransient<ConverterPage>();
+		builder.Services.AddTransient<PrivacyPage>();
 
 		RemoveNativeUnderlines();
 

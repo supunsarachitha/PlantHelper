@@ -48,7 +48,7 @@
             <HorizontalStackLayout Padding="16,14,16,6" Spacing="8" BindableLayout.ItemsSource="{Binding Filters}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="vm:SelectableOption">
-                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="14,0" HeightRequest="40"
+                        <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Background}" Padding="14,0" HeightRequest="44"
                                 SemanticProperties.Description="{Binding Label}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer

@@ -9,8 +9,10 @@ using PlantHelper.Services;
 namespace PlantHelper.Platforms.Android;
 
 /// <summary>
-/// Daily reminder using an inexact repeating alarm. Inexact alarms need no special permission
-/// (Google Play restricts SCHEDULE_EXACT_ALARM to alarm/calendar apps).
+/// Daily reminder using a one-shot *windowed* alarm that re-arms itself each day.
+/// Windowed alarms need no special permission (Google Play restricts SCHEDULE_EXACT_ALARM to
+/// alarm/calendar apps) yet fire within ~30 minutes of the chosen time, unlike inexact repeating
+/// alarms, which may drift by many hours.
 /// </summary>
 public sealed class AndroidReminderScheduler : IReminderScheduler
 {
@@ -41,14 +43,16 @@ public sealed class AndroidReminderScheduler : IReminderScheduler
         AlarmManagerFor(context).Cancel(ReminderIntent(context));
     }
 
+    private const long DeliveryWindowMs = 30 * 60 * 1000;
+
     public static void Schedule(Context context, TimeSpan timeOfDay)
     {
         EnsureChannel(context);
         var next = DateTime.Today.Add(timeOfDay);
-        if (next <= DateTime.Now)
+        if (next <= DateTime.Now.AddMinutes(1))
             next = next.AddDays(1);
         var triggerAt = new DateTimeOffset(next).ToUnixTimeMilliseconds();
-        AlarmManagerFor(context).SetInexactRepeating(AlarmType.RtcWakeup, triggerAt, AlarmManager.IntervalDay, ReminderIntent(context));
+        AlarmManagerFor(context).SetWindow(AlarmType.RtcWakeup, triggerAt, DeliveryWindowMs, ReminderIntent(context));
     }
 
     public static void EnsureChannel(Context context)
@@ -80,6 +84,10 @@ public class ReminderReceiver : BroadcastReceiver
     {
         if (context is null)
             return;
+        // One-shot alarm: arm tomorrow's reminder first.
+        var settings = new SettingsService(Preferences.Default);
+        if (settings.RemindersEnabled)
+            AndroidReminderScheduler.Schedule(context, settings.ReminderTime);
         var pending = GoAsync();
         Task.Run(async () =>
         {

@@ -34,6 +34,7 @@ public static class Routes
         Routing.RegisterRoute(PpmEc, typeof(PpmEcPage));
         Routing.RegisterRoute(Dilution, typeof(MixerPage));
         Routing.RegisterRoute(Converter, typeof(ConverterPage));
+        Routing.RegisterRoute(Privacy, typeof(PrivacyPage));
     }
 
     public static Task GoAsync(string route, IDictionary<string, object>? parameters = null) =>

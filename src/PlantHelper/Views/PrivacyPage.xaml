@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PlantHelper.Views.PrivacyPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:theme="clr-namespace:PlantHelper.Theme"
+    Shell.TabBarIsVisible="False"
+    Title="Privacy policy">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+            <Border Style="{StaticResource Card}" Background="{StaticResource HeaderGradient}" Padding="20">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 18" BackgroundColor="#33FFFFFF">
+                        <Label Style="{StaticResource Icon}" FontSize="30" TextColor="White" Text="{x:Static theme:Icons.ShieldLock}" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="Your data stays on your phone" TextColor="White" FontFamily="NunitoExtraBold" FontSize="18" />
+                        <Label Text="No account · no ads · no tracking · no internet" TextColor="#ECFDF5" FontFamily="NunitoSemiBold" FontSize="13" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitle}" Text="What is stored" />
+                    <Label Style="{StaticResource Body}" Text="Your plants, journal entries, nutrient library, growth photos and preferences are stored only in PlantHelper's private storage on this device. Nothing is uploaded to a server, and Android cloud backup is turned off for app data." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitle}" Text="Permissions" />
+                    <Label Style="{StaticResource Body}" Text="• Camera: only when you tap “Take a photo”, to capture growth photos." />
+                    <Label Style="{StaticResource Body}" Text="• Notifications: only if you turn on the daily care reminder." />
+                    <Label Style="{StaticResource Body}" Text="• Run at startup: restores your reminder after a restart (only if reminders are on)." />
+                    <Label Style="{StaticResource Body}" Text="Photos from your gallery come through the system photo picker, so PlantHelper only sees the photos you choose. Stored copies have location data removed." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitle}" Text="Export, share and delete" />
+                    <Label Style="{StaticResource Body}" Text="Backups (.zip) and journal exports (.csv) are only created when you ask, and saved or shared wherever you choose. Once exported, that copy is under your control." />
+                    <Label Style="{StaticResource Body}" Text="Settings → Delete all data (or uninstalling the app) permanently removes everything PlantHelper has stored." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Style="{StaticResource Caption}" HorizontalTextAlignment="Center" Text="PlantHelper does not knowingly collect personal information from anyone, including children." Margin="0,0,0,16" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

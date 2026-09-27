@@ -36,5 +36,11 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSCameraUsageDescription</key>
+	<string>PlantHelper uses the camera to take growth photos of your plants. Photos stay on your device.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose existing photos of your plants to add to their growth timeline.</string>
+	<key>CFBundleDisplayName</key>
+	<string>PlantHelper</string>
 </dict>
 </plist>

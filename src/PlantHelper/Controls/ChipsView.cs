@@ -35,7 +35,7 @@ public class ChipsView : ContentView
                 StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 14 },
                 StrokeThickness = 0,
                 Padding = new Thickness(14, 0),
-                HeightRequest = 40,
+                HeightRequest = 44,
                 Margin = new Thickness(0, 0, 8, 8),
                 Content = label,
             };

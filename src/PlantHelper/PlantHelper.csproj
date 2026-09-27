@@ -19,7 +19,7 @@
 		<ApplicationTitle>PlantHelper</ApplicationTitle>
 
 		<!-- App Identifier: this becomes the permanent Google Play package name -->
-		<ApplicationId>com.planthelper.app</ApplicationId>
+		<ApplicationId>lk.stechbuzz.planthelper</ApplicationId>
 
 		<!-- Versions: bump ApplicationVersion (versionCode) for every Play upload -->
 		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>

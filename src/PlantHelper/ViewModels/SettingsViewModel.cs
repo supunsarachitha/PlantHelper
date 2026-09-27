@@ -205,19 +205,17 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private Task NutrientsAsync() => Routes.GoAsync(Routes.Nutrients);
 
-#if DEBUG
-    /// <summary>Debug builds only: fire the reminder pipeline immediately.</summary>
+    /// <summary>Debug builds only (the button is hidden in Release): fire the reminder pipeline immediately.</summary>
     [RelayCommand]
     private async Task TestReminderAsync()
     {
-#if ANDROID
+#if DEBUG && ANDROID
         await Platforms.Android.ReminderReceiver.NotifyAsync(Platform.AppContext);
         await _dialogs.ToastAsync("Reminder check ran");
 #else
         await Task.CompletedTask;
 #endif
     }
-#endif
 
     private static void Select(IEnumerable<SelectableOption> options, int value)
     {

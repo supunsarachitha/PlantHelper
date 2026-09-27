@@ -19,3 +19,6 @@ coverage*/
 # Publish output
 publish/
 artifacts/
+
+# Local test helpers / screenshots
+.work/
