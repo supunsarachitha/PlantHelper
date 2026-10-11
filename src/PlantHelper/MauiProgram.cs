@@ -92,12 +92,21 @@ public static class MauiProgram
 		builder.Services.AddTransient<PrivacyPage>();
 
 		RemoveNativeUnderlines();
+		ClipGradientButtons();
 
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
 
 		return builder.Build();
+	}
+
+	/// <summary>iOS/Mac draw a gradient Background as an unclipped sublayer; clip it to the button's corner radius.</summary>
+	private static void ClipGradientButtons()
+	{
+#if IOS || MACCATALYST
+		Microsoft.Maui.Handlers.ButtonHandler.Mapper.AppendToMapping("ClipGradient", (h, _) => h.PlatformView.ClipsToBounds = true);
+#endif
 	}
 
 	/// <summary>Our inputs sit inside rounded borders, so drop Android's default underline.</summary>
