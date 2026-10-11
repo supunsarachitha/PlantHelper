@@ -1,6 +1,6 @@
 # PlantHelper – Privacy Policy
 
-_Last updated: 26 September 2026_
+_Last updated: 10 October 2026_
 
 PlantHelper is a plant-growing journal. It is designed so that **your data never leaves your device unless you choose to export it.**
 
@@ -31,4 +31,4 @@ PlantHelper is a general-audience gardening tool and does not knowingly collect 
 If this policy changes, the new version will be published at the same address and in the app.
 
 ## Contact
-Questions about privacy: **[your support email]**
+Questions about privacy: open an issue at <https://github.com/supunsarachitha/PlantHelper/issues>.
