@@ -1,0 +1,58 @@
+# Tests the core library and builds the Android app. Nothing here signs or publishes anything: without
+# signing.local.props a Release build is signed with the debug key.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Core tests
+        run: dotnet test tests/PlantHelper.Tests/PlantHelper.Tests.csproj
+
+  android:
+    name: Android app (Release)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-java@v6
+        with:
+          distribution: microsoft
+          java-version: "21"
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android
+      - name: Install the Android SDK packages the app needs
+        run: >
+          dotnet build src/PlantHelper/PlantHelper.csproj -f net10.0-android -t:InstallAndroidDependencies
+          -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=true
+      - name: Build
+        run: >
+          dotnet build src/PlantHelper/PlantHelper.csproj -c Release -f net10.0-android
+          -p:AndroidSdkDirectory="$ANDROID_HOME"
+      - name: The app asks for no network permission
+        run: |
+          apk=$(ls src/PlantHelper/bin/Release/net10.0-android/*-Signed.apk)
+          aapt2=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2
+          "$aapt2" dump permissions "$apk" | tee permissions.txt
+          if grep -E "INTERNET|ACCESS_NETWORK_STATE" permissions.txt; then
+            echo "::error::The release APK requests a network permission."
+            exit 1
+          fi
