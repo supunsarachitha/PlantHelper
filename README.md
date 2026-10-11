@@ -87,20 +87,17 @@ dotnet test tests/PlantHelper.Tests/PlantHelper.Tests.csproj
 
 ## Release build for Google Play
 
-A Release build for Android produces an Android App Bundle (`.aab`). Signing values are passed on the command line and are never stored in the repository; `*.keystore` and `*.jks` files are git-ignored.
+This makes a signed `.aab` for Google Play and a signed `.apk` for direct installs and for testing the release build:
 
 ```sh
-export PLANTHELPER_STORE_PASS='...'
-export PLANTHELPER_KEY_PASS='...'
-
-dotnet publish src/PlantHelper/PlantHelper.csproj -f net10.0-android -c Release \
-  -p:AndroidSigningKeyStore=/path/to/upload.keystore \
-  -p:AndroidSigningKeyAlias=upload \
-  -p:AndroidSigningStorePass=env:PLANTHELPER_STORE_PASS \
-  -p:AndroidSigningKeyPass=env:PLANTHELPER_KEY_PASS
+rm -rf src/PlantHelper/bin/Release src/PlantHelper/obj/Release
+dotnet publish src/PlantHelper/PlantHelper.csproj -c Release -f net10.0-android
+# Output: src/PlantHelper/bin/Release/net10.0-android/publish/
 ```
 
-The signed bundle is written to `src/PlantHelper/bin/Release/net10.0-android/publish/lk.stechbuzz.planthelper-Signed.aab`.
+Release signing is set up in `src/PlantHelper/signing.local.props`, which is git-ignored. Copy [signing.local.props.example](src/PlantHelper/signing.local.props.example), fill in your keystore's details, and never commit a keystore or its passwords. Without that file, a release build is signed with the debug key, which no store accepts.
+
+Build a release from clean, as above: an incremental build can keep old R8-shrunk Java code in the package.
 
 Before each Play upload, increase `ApplicationVersion` (the version code) in [src/PlantHelper/PlantHelper.csproj](src/PlantHelper/PlantHelper.csproj). `ApplicationDisplayVersion` is the version users see.
 

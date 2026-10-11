@@ -12,9 +12,14 @@ obj/
 TestResults/
 coverage*/
 
-# Android signing keys - never commit
+# Android signing keys and local signing settings (hold the keystore passwords) - never commit
+signing.local.props
 *.keystore
 *.jks
+
+# Release packages
+*.apk
+*.aab
 
 # Publish output
 publish/

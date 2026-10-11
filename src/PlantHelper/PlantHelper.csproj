@@ -34,12 +34,19 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
-	<!-- Google Play release: signed Android App Bundle.
-	     Signing values come from environment/command line, never from source control:
-	     dotnet publish -f net10.0-android -c Release -p:AndroidSigningKeyStore=... (see README) -->
+	<!-- Release packages: the .aab goes to Google Play; the .apk is for direct installs and for testing the release build. -->
 	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-		<AndroidPackageFormat>aab</AndroidPackageFormat>
-		<AndroidKeyStore Condition="'$(AndroidSigningKeyStore)' != ''">true</AndroidKeyStore>
+		<!-- R8 removes the Java code the app never calls; without it Google Play reports the DEX code as unoptimised. -->
+		<AndroidLinkTool>r8</AndroidLinkTool>
+		<AndroidPackageFormats>aab;apk</AndroidPackageFormats>
+	</PropertyGroup>
+
+	<!-- Release signing. The keystore details stay out of source control: they are in signing.local.props (git-ignored;
+	     see signing.local.props.example) or come from the command line, e.g. -p:AndroidSigningStorePass=env:KEYSTORE_PASS.
+	     Without them a Release build is signed with the debug key, which no store accepts. -->
+	<Import Project="signing.local.props" Condition="Exists('signing.local.props')" />
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(AndroidSigningKeyStore)' != ''">
+		<AndroidKeyStore>true</AndroidKeyStore>
 	</PropertyGroup>
 
 	<ItemGroup>
