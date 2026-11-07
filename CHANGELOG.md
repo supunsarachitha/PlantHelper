@@ -2,6 +2,11 @@
 
 All notable changes to PlantHelper are recorded here. Versions follow `ApplicationDisplayVersion` in `src/PlantHelper/PlantHelper.csproj`.
 
+## 1.0.1
+
+### Maintenance
+- Updated Microsoft.Maui.Controls to 10.0.120 and Microsoft.Extensions.Logging.Debug to 10.0.14.
+
 ## 1.0.0
 
 First release.
